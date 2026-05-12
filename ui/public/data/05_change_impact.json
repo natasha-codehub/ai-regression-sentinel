@@ -1,0 +1,41 @@
+{
+  "diff_summary": "Adds 'complete' to the blocked-statuses list in PaymentMethods::delete (preventing deletion of cards tied to completed orders) and adds a structured warning log entry in Save::execute for invalid form key submissions, tightening audit coverage on the onboarding save path.",
+  "changed_symbols": [
+    {
+      "type": "method",
+      "name": "delete",
+      "file": "PaymentMethods.php"
+    },
+    {
+      "type": "method",
+      "name": "execute",
+      "file": "Save.php"
+    }
+  ],
+  "affected_tests": [
+    {
+      "test_id": "GEN-010",
+      "test_filename": "PaymentMethodDeletionTest.php",
+      "reason": "The statuses array now includes 'complete', so a card previously deletable after a completed order will now be blocked — testCannotDeletePaymentMethodWithOpenOrder may pass for the wrong fixture, and no test covers the 'complete' boundary specifically. Additionally, trim($token) is added: any test fixture using a token with surrounding whitespace will now resolve differently."
+    },
+    {
+      "test_id": "GEN-001",
+      "test_filename": "OnboardingProcessTest.php",
+      "reason": "Save::execute now emits a logger.warning with customer_id and IP before returning the invalid-form-key error response — the existing tests do not assert on this log output path, and the new logging block executes on a code path (invalid form key) that existing tests exercise implicitly."
+    }
+  ],
+  "new_test_recommendations": [
+    {
+      "description": "Test that attempting to delete a payment method tied to a 'complete' status order returns a 403-equivalent blocked response, distinct from the previously covered 'processing' and 'pending' status cases.",
+      "reason": "The diff adds 'complete' as a new boundary. No existing test exercises deletion against a completed order — this is the most significant behaviour change introduced."
+    },
+    {
+      "description": "Test that a card token submitted with leading or trailing whitespace is normalised and resolves to the same card as the trimmed token (i.e., server returns 200 or 403, not 404/422).",
+      "reason": "trim($token) was added to PaymentMethods::delete but no existing test covers whitespace-padded tokens, leaving the normalisation behaviour unverified."
+    },
+    {
+      "description": "Test that submitting a POST to /businessaccount/index/save with an invalid form key returns {'success': false} and does not throw an unhandled exception (the new logger.warning block must not raise).",
+      "reason": "The new logging block in Save::execute is new code on the invalid-form-key path; it should be exercised explicitly to confirm the logger dependency is correctly injected."
+    }
+  ]
+}

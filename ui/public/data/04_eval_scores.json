@@ -1,0 +1,192 @@
+[
+  {
+    "id": "EVAL-001",
+    "generation_id": "GEN-001",
+    "dimensions": [
+      {
+        "name": "syntactic_validity",
+        "score": 100,
+        "weight": 0.10,
+        "notes": "Valid PHP throughout. Correct TestCase extension, proper Guzzle Client instantiation, type declarations are consistent."
+      },
+      {
+        "name": "behavior_fidelity",
+        "score": 85,
+        "weight": 0.35,
+        "notes": "Covers the unauthenticated redirect (Save.php line 70-73), the JSON response structure, and the end-to-end checkout flow. Missing: does not assert that the order confirmation response contains a non-null order_id from NAV (nav_order_id), which is part of the agreed expected behavior."
+      },
+      {
+        "name": "coverage_delta",
+        "score": 82,
+        "weight": 0.15,
+        "notes": "Adds new coverage for the onboarding save controller and the post-login checkout path. The group_id fallback test (testMissingGroupIdFallsBackToCustomerGroup) exercises Save.php line 80-82, which would otherwise have no API-level test."
+      },
+      {
+        "name": "assertion_quality",
+        "score": 82,
+        "weight": 0.25,
+        "notes": "assertArrayHasKey('success') is good. testCheckoutSucceedsAfterOnboarding asserts assertIsInt and assertGreaterThan(0) on orderId — specific and correct. Weakness: testOnboardingPostReturnsJsonWithSuccessKey does not assert the value of the 'success' key (true vs false)."
+      },
+      {
+        "name": "determinism",
+        "score": 88,
+        "weight": 0.15,
+        "notes": "No random values or clock dependencies. All test data comes from env vars. Minor risk: testCheckoutSucceedsAfterOnboarding leaves an order in the system — add a tearDown to cancel or the next run may see unexpected cart/order state."
+      }
+    ],
+    "composite": 85.75,
+    "gate_decision": "PASS"
+  },
+  {
+    "id": "EVAL-003",
+    "generation_id": "GEN-003",
+    "dimensions": [
+      {
+        "name": "syntactic_validity",
+        "score": 100,
+        "weight": 0.10,
+        "notes": "Syntactically valid. Correct class structure and Guzzle usage."
+      },
+      {
+        "name": "behavior_fidelity",
+        "score": 88,
+        "weight": 0.35,
+        "notes": "Correctly targets the regression: testOrderPlacementCreatesSalesforceCase asserts sf_case_id is not null, which directly probes the broken integration identified in REC-003. testOrderPlacementCreatesNavEntry adds a second axis. Missing: does not assert sf_case_creation_status = 'created', leaving the door open for a future bug where sf_case_id is populated with a stale value."
+      },
+      {
+        "name": "coverage_delta",
+        "score": 85,
+        "weight": 0.15,
+        "notes": "High-value regression coverage. Both SF case and NAV order assertions together cover the full expected post-order state. No existing tests cover this integration path."
+      },
+      {
+        "name": "assertion_quality",
+        "score": 60,
+        "weight": 0.25,
+        "notes": "assertNotNull(sf_case_id) is necessary but insufficient — does not assert that sf_case_creation_status='created'. Does not assert the SF case number format or that it is retrievable. testOrderPlacementCreatesNavEntry uses assertNotEmpty which is weaker than assertMatchesRegularExpression for a known NAV ID pattern like NAV-ORD-\\d+."
+      },
+      {
+        "name": "determinism",
+        "score": 88,
+        "weight": 0.15,
+        "notes": "No randomness. Auth uses env vars. Small risk: test depends on the Salesforce integration being reachable — if SF is down, the test result is ambiguous (regression vs infrastructure failure). Consider asserting on sf_case_creation_status to distinguish these cases."
+      }
+    ],
+    "composite": 81.75,
+    "gate_decision": "WARN"
+  },
+  {
+    "id": "EVAL-009",
+    "generation_id": "GEN-009",
+    "dimensions": [
+      {
+        "name": "syntactic_validity",
+        "score": 100,
+        "weight": 0.10,
+        "notes": "Valid PHP. clearCart() helper is clean. All assertions use correct PHPUnit methods."
+      },
+      {
+        "name": "behavior_fidelity",
+        "score": 95,
+        "weight": 0.35,
+        "notes": "Excellent regression coverage: tests qty<MOQ (rejection), qty=MOQ (acceptance), and CSJ MOQ=1 (single-unit allowed). All three paths from the reconciliation's final_expected_behavior are exercised. Minor gap: does not test the default MOQ=2 scenario where no CSJ value is set (relies on CO2-CYLINDER-20LB having moq_configured=2 implicitly)."
+      },
+      {
+        "name": "coverage_delta",
+        "score": 92,
+        "weight": 0.15,
+        "notes": "Adds boundary-value coverage (qty=MOQ, qty<MOQ) and a CSJ override path. Three distinct test methods means CI failures are attributable to a specific MOQ scenario."
+      },
+      {
+        "name": "assertion_quality",
+        "score": 88,
+        "weight": 0.25,
+        "notes": "assertGreaterThanOrEqual(400) + assertLessThan(500) is precise for HTTP range. assertNotEmpty($body['message']) is good but could be strengthened with assertStringContainsString to verify the message mentions MOQ or minimum quantity. testOrderAtMoqThresholdIsAccepted correctly asserts assertIsInt + assertGreaterThan(0)."
+      },
+      {
+        "name": "determinism",
+        "score": 90,
+        "weight": 0.15,
+        "notes": "clearCart() in each test prevents cart state leakage. No random values. N2-MOQ1-CYLINDER SKU dependency should be documented in test fixtures README so environment setup is reproducible."
+      }
+    ],
+    "composite": 92.55,
+    "gate_decision": "PASS"
+  },
+  {
+    "id": "EVAL-010",
+    "generation_id": "GEN-010",
+    "dimensions": [
+      {
+        "name": "syntactic_validity",
+        "score": 100,
+        "weight": 0.10,
+        "notes": "Syntactically valid. markTestSkipped usage is correct."
+      },
+      {
+        "name": "behavior_fidelity",
+        "score": 78,
+        "weight": 0.35,
+        "notes": "testPaymentMethodsListReturnsAvailableMethods and testSinglePaymentMethodIsAutoSelected cover the payment methods section of the checkout page. However, testCannotDeletePaymentMethodWithOpenOrder does not actually assert the specific error message from PaymentMethods.php line 74: 'Sorry, it is not possible to delete this payment method because order #%1 which was placed using it is still being processed.' The test only checks the HTTP status code."
+      },
+      {
+        "name": "coverage_delta",
+        "score": 75,
+        "weight": 0.15,
+        "notes": "Covers the payment methods list and delete-with-open-order guard. Missing: fingerprint parameter path (PaymentMethods.php line 50), the Stripe CardException handler (line 93-96), and the outcome() redirect flow (line 57-63)."
+      },
+      {
+        "name": "assertion_quality",
+        "score": 72,
+        "weight": 0.25,
+        "notes": "assertContains(['code'], $methods[0]) is good. The delete test only asserts assertContains($status, [200, 302]) which is too broad — 200 and 302 are very different outcomes. Should assert the Location header on 302 and check for the error message text in the response body."
+      },
+      {
+        "name": "determinism",
+        "score": 82,
+        "weight": 0.15,
+        "notes": "No random values. TEST_CARD_TOKEN_WITH_OPEN_ORDER env var dependency is correctly handled with a fallback value. markTestSkipped for single-method scenario is correct practice."
+      }
+    ],
+    "composite": 78.85,
+    "gate_decision": "WARN"
+  },
+  {
+    "id": "EVAL-013",
+    "generation_id": "GEN-013",
+    "dimensions": [
+      {
+        "name": "syntactic_validity",
+        "score": 100,
+        "weight": 0.10,
+        "notes": "Syntactically valid PHP. markTestSkipped used correctly."
+      },
+      {
+        "name": "behavior_fidelity",
+        "score": 72,
+        "weight": 0.35,
+        "notes": "The reconciliation (REC-013, no_observation) requires verifying Primary user access control for the My User tab. This test instead targets the AdminOTP Resend controller — there is a domain mismatch. The redirect assertions probe authentication scaffolding rather than the user management behavior described in the intent."
+      },
+      {
+        "name": "coverage_delta",
+        "score": 55,
+        "weight": 0.15,
+        "notes": "The session-expiry redirect paths (Resend.php lines 35-47) are covered, which has some value. But the My User tab access control, user listing, and New User creation flows — the core of TI-013 — are not covered at all."
+      },
+      {
+        "name": "assertion_quality",
+        "score": 45,
+        "weight": 0.25,
+        "notes": "testResendWithValidSessionReturnsSuccess asserts assertSame(302) and assertStringContainsString on the Location header, which is the strongest assertion in the file. The other two methods only assert status code ranges without verifying response body content or redirect destinations. No assertions on OTP email dispatch, OTP record update, or expiry time."
+      },
+      {
+        "name": "determinism",
+        "score": 35,
+        "weight": 0.15,
+        "notes": "Critical: Resend.php line 56 uses rand(100000, 999999) and line 57 uses date() with time() for the 3-minute expiry. Any test that attempts to assert the OTP value or expiry timestamp will be non-deterministic. The current test avoids this by not asserting OTP content, but the underlying controller cannot be fully tested deterministically without injecting a clock or seeding the random generator."
+      }
+    ],
+    "composite": 59.95,
+    "gate_decision": "REVIEW"
+  }
+]

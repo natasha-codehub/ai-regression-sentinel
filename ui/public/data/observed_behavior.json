@@ -1,0 +1,293 @@
+[
+  {
+    "id": "OBS-001",
+    "timestamp": "2025-04-10T09:14:33Z",
+    "session_id": "sess_demo_001",
+    "summary": "Primary user login — returns JWT token successfully",
+    "endpoint": "POST /rest/V1/integration/customer/token",
+    "request": {
+      "method": "POST",
+      "body": { "username": "primary.user@esprigas.com", "password": "[REDACTED]" }
+    },
+    "response": {
+      "status": 200,
+      "body": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.demo_token"
+    },
+    "context": {
+      "user_type": "primary",
+      "company_status": "Approved",
+      "location_status": "Active",
+      "pricing_profile": "PP-INDUSTRIAL-001",
+      "nav_id": null,
+      "ios_case_id": "SF-CASE-88234",
+      "payment_status": "Approved"
+    }
+  },
+  {
+    "id": "OBS-002",
+    "timestamp": "2025-04-10T09:14:41Z",
+    "session_id": "sess_demo_001",
+    "summary": "Get customer profile — confirms no NAV ID, IOS case present, payment approved",
+    "endpoint": "GET /rest/V1/customers/me",
+    "request": { "method": "GET" },
+    "response": {
+      "status": 200,
+      "body": {
+        "id": 1042,
+        "email": "primary.user@esprigas.com",
+        "company_status": "Approved",
+        "location_status": "Active",
+        "pricing_profile_id": "PP-INDUSTRIAL-001",
+        "nav_id": null,
+        "ios_case_id": "SF-CASE-88234",
+        "payment_status": "Approved",
+        "bank_verification_status": "complete"
+      }
+    },
+    "context": { "user_type": "primary", "nav_id": null }
+  },
+  {
+    "id": "OBS-003",
+    "timestamp": "2025-04-10T09:16:02Z",
+    "session_id": "sess_demo_001",
+    "summary": "Add CO2 cylinder to cart — qty=1, below configured MOQ of 2",
+    "endpoint": "POST /rest/V1/carts/mine/items",
+    "request": {
+      "method": "POST",
+      "body": {
+        "cartItem": {
+          "sku": "CO2-CYLINDER-20LB",
+          "qty": 1,
+          "quote_id": "cart_abc123"
+        }
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "item_id": 91,
+        "sku": "CO2-CYLINDER-20LB",
+        "qty": 1,
+        "name": "NAV-CO2-20LB — 20lb CO2 Cylinder",
+        "price": 34.99,
+        "nav_part_number": "NAV-CO2-20LB",
+        "moq_configured": 2,
+        "moq_warning": null
+      }
+    },
+    "context": { "user_type": "primary", "cart_id": "cart_abc123" }
+  },
+  {
+    "id": "OBS-004",
+    "timestamp": "2025-04-10T09:16:45Z",
+    "session_id": "sess_demo_001",
+    "summary": "Get cart — reflects qty=1 item, no MOQ validation message surfaced",
+    "endpoint": "GET /rest/V1/carts/mine",
+    "request": { "method": "GET" },
+    "response": {
+      "status": 200,
+      "body": {
+        "id": "cart_abc123",
+        "items": [
+          {
+            "item_id": 91,
+            "sku": "CO2-CYLINDER-20LB",
+            "qty": 1,
+            "price": 34.99,
+            "nav_part_number": "NAV-CO2-20LB"
+          }
+        ],
+        "items_count": 1,
+        "grand_total": 34.99,
+        "moq_validation_active": false
+      }
+    },
+    "context": { "user_type": "primary" }
+  },
+  {
+    "id": "OBS-005",
+    "timestamp": "2025-04-10T09:17:10Z",
+    "session_id": "sess_demo_001",
+    "summary": "Get available shipping methods — Standard and Rush only; Will Call absent",
+    "endpoint": "GET /rest/V1/carts/mine/shipping-methods",
+    "request": { "method": "GET" },
+    "response": {
+      "status": 200,
+      "body": [
+        {
+          "carrier_code": "standard",
+          "method_code": "standard",
+          "carrier_title": "Standard Delivery",
+          "method_title": "Standard Delivery",
+          "amount": 0.00,
+          "available": true,
+          "estimated_delivery": "2025-04-14"
+        },
+        {
+          "carrier_code": "rush",
+          "method_code": "rush",
+          "carrier_title": "Rush Delivery",
+          "method_title": "Rush Delivery (2 business days)",
+          "amount": 24.99,
+          "available": true,
+          "estimated_delivery": "2025-04-12"
+        }
+      ]
+    },
+    "context": { "user_type": "primary", "buying_group": "Heartland" }
+  },
+  {
+    "id": "OBS-006",
+    "timestamp": "2025-04-10T09:17:44Z",
+    "session_id": "sess_demo_001",
+    "summary": "Set shipping information — Standard delivery selected",
+    "endpoint": "POST /rest/V1/carts/mine/shipping-information",
+    "request": {
+      "method": "POST",
+      "body": {
+        "addressInformation": {
+          "shipping_address": {
+            "firstname": "Demo",
+            "lastname": "User",
+            "street": ["123 Industrial Blvd"],
+            "city": "Houston",
+            "region_code": "TX",
+            "postcode": "77001",
+            "telephone": "555-0100"
+          },
+          "shipping_carrier_code": "standard",
+          "shipping_method_code": "standard"
+        }
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "payment_methods": ["stripe_cc", "invoice"],
+        "totals": { "subtotal": 34.99, "shipping_amount": 0.00, "grand_total": 34.99 }
+      }
+    },
+    "context": { "user_type": "primary" }
+  },
+  {
+    "id": "OBS-007",
+    "timestamp": "2025-04-10T09:18:05Z",
+    "session_id": "sess_demo_001",
+    "summary": "Get payment methods — Stripe CC and invoice available",
+    "endpoint": "GET /rest/V1/carts/mine/payment-methods",
+    "request": { "method": "GET" },
+    "response": {
+      "status": 200,
+      "body": [
+        { "code": "stripe_cc", "title": "Credit / Debit Card (Stripe)" },
+        { "code": "invoice", "title": "Net 30 Invoice" }
+      ]
+    },
+    "context": { "user_type": "primary" }
+  },
+  {
+    "id": "OBS-008",
+    "timestamp": "2025-04-10T09:18:52Z",
+    "session_id": "sess_demo_001",
+    "summary": "Place order with qty=1 (below MOQ=2) — order ACCEPTED, MOQ check did not fire",
+    "endpoint": "POST /rest/V1/carts/mine/payment-information",
+    "request": {
+      "method": "POST",
+      "body": {
+        "paymentMethod": { "method": "stripe_cc", "additional_data": { "cc_last4": "4242" } },
+        "email": "primary.user@esprigas.com"
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "order_id": 50291,
+        "order_increment_id": "100050291",
+        "status": "pending",
+        "items_ordered": [{ "sku": "CO2-CYLINDER-20LB", "qty_ordered": 1 }],
+        "moq_enforced": false,
+        "moq_rejection_reason": null
+      }
+    },
+    "context": { "user_type": "primary", "moq_configured": 2, "qty_submitted": 1 }
+  },
+  {
+    "id": "OBS-009",
+    "timestamp": "2025-04-10T09:19:03Z",
+    "session_id": "sess_demo_001",
+    "summary": "Get order details after placement — order created, SF case ID is null (not created)",
+    "endpoint": "GET /rest/V1/orders/50291",
+    "request": { "method": "GET" },
+    "response": {
+      "status": 200,
+      "body": {
+        "entity_id": 50291,
+        "increment_id": "100050291",
+        "status": "pending",
+        "customer_email": "primary.user@esprigas.com",
+        "nav_order_id": "NAV-ORD-50291",
+        "sf_case_id": null,
+        "sf_case_creation_status": "failed",
+        "sf_case_error": "Salesforce API timeout — case not created",
+        "print_receipt_url": "/sales/order/print/order_id/50291"
+      }
+    },
+    "context": { "user_type": "primary", "nav_id": null }
+  },
+  {
+    "id": "OBS-010",
+    "timestamp": "2025-04-10T09:22:15Z",
+    "session_id": "sess_demo_002",
+    "summary": "Get product listing — pricing profile applied, 4x3 grid data returned",
+    "endpoint": "GET /rest/V1/products?searchCriteria[pageSize]=12&searchCriteria[currentPage]=1",
+    "request": { "method": "GET" },
+    "response": {
+      "status": 200,
+      "body": {
+        "items": [
+          { "sku": "CO2-CYLINDER-20LB", "name": "NAV-CO2-20LB — 20lb CO2 Cylinder", "price": 34.99, "pricing_profile": "PP-INDUSTRIAL-001" },
+          { "sku": "N2-CYLINDER-50LB", "name": "NAV-N2-50LB — 50lb Nitrogen Cylinder", "price": 54.99, "pricing_profile": "PP-INDUSTRIAL-001" }
+        ],
+        "total_count": 48,
+        "page_size": 12,
+        "catalog_view": "price_profile_active"
+      }
+    },
+    "context": { "user_type": "primary", "pricing_profile": "PP-INDUSTRIAL-001" }
+  },
+  {
+    "id": "OBS-011",
+    "timestamp": "2025-04-10T09:23:40Z",
+    "session_id": "sess_demo_002",
+    "summary": "Apply promo code — returns error for overused coupon",
+    "endpoint": "PUT /rest/V1/carts/mine/coupons/SAVE10OFF",
+    "request": { "method": "PUT" },
+    "response": {
+      "status": 400,
+      "body": {
+        "message": "Sorry, this coupon has already been redeemed the maximum number of times at this location",
+        "code": "COUPON_EXCEEDED_REDEMPTIONS"
+      }
+    },
+    "context": { "user_type": "primary", "coupon_code": "SAVE10OFF" }
+  },
+  {
+    "id": "OBS-012",
+    "timestamp": "2025-04-10T09:25:00Z",
+    "session_id": "sess_demo_003",
+    "summary": "Get customer orders — My Orders list for primary user",
+    "endpoint": "GET /rest/V1/orders?searchCriteria[filterGroups][0][filters][0][field]=customer_email&searchCriteria[filterGroups][0][filters][0][value]=primary.user@esprigas.com",
+    "request": { "method": "GET" },
+    "response": {
+      "status": 200,
+      "body": {
+        "items": [
+          { "entity_id": 50291, "increment_id": "100050291", "status": "pending", "grand_total": 34.99, "created_at": "2025-04-10T09:18:52Z" },
+          { "entity_id": 50188, "increment_id": "100050188", "status": "complete", "grand_total": 124.50, "created_at": "2025-04-02T11:04:17Z" }
+        ],
+        "total_count": 2
+      }
+    },
+    "context": { "user_type": "primary" }
+  }
+]

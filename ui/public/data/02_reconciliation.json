@@ -1,0 +1,155 @@
+[
+  {
+    "id": "REC-001",
+    "intent_id": "TI-001",
+    "matched_observations": ["OBS-001", "OBS-002", "OBS-006", "OBS-008"],
+    "decision": "agree",
+    "confidence": 0.91,
+    "reasoning": "OBS-001 confirms login succeeds for a Primary user with iOS case and Approved payment status. OBS-002 confirms no NAV ID on the account. OBS-008 confirms order placement returns HTTP 200 with a valid order_id. The full onboarding-to-checkout flow matches the intent.",
+    "final_expected_behavior": "Checkout completes successfully; order is submitted and user is redirected to the order confirmation screen"
+  },
+  {
+    "id": "REC-002",
+    "intent_id": "TI-002",
+    "matched_observations": [],
+    "decision": "no_observation",
+    "confidence": 0.85,
+    "reasoning": "No captured API call shows a bank verification prompt being triggered. OBS-002 shows bank_verification_status=complete, meaning the session used for capture had already passed verification. This intent covers a UI prompt flow that was not in scope during the observation window.",
+    "final_expected_behavior": "Bank verification prompt is displayed when the user attempts to place an order; outbound logs record the verification request; NAV order entry is not created until verification is complete"
+  },
+  {
+    "id": "REC-003",
+    "intent_id": "TI-003",
+    "matched_observations": ["OBS-008", "OBS-009"],
+    "decision": "behavior_regressed",
+    "confidence": 0.96,
+    "reasoning": "OBS-009 shows the order confirmation response contains sf_case_id=null and sf_case_creation_status=failed with an explicit Salesforce API timeout error. The intent states a Salesforce case MUST appear in the SF Case Queue after order placement. The NAV order entry was created (nav_order_id present) but the SF case integration is broken. This is a regression, not an intentional design change.",
+    "final_expected_behavior": "REGRESSION DETECTED: After order placement, sf_case_id must be non-null and a case must appear in the Salesforce Case Queue. The observed system returned sf_case_id=null with sf_case_creation_status=failed. The generated test must assert that POST /rest/V1/carts/mine/payment-information followed by GET /rest/V1/orders/{id} returns a non-null sf_case_id and sf_case_creation_status=created."
+  },
+  {
+    "id": "REC-004",
+    "intent_id": "TI-004",
+    "matched_observations": ["OBS-002"],
+    "decision": "no_observation",
+    "confidence": 0.72,
+    "reasoning": "No API observation captures the pricing profile mismatch popup trigger. OBS-002 shows a pricing profile is assigned but no mismatch event was recorded during the session. This appears to be a dashboard UI event not surfaced via the REST API capture.",
+    "final_expected_behavior": "A pricing profile mismatch popup is displayed on the dashboard after login; product prices on the catalog reflect the updated pricing profile"
+  },
+  {
+    "id": "REC-006",
+    "intent_id": "TI-006",
+    "matched_observations": ["OBS-010"],
+    "decision": "agree",
+    "confidence": 0.88,
+    "reasoning": "OBS-010 confirms the product listing API returns items with pricing_profile applied and catalog_view=price_profile_active. The 4x3 grid (12 items per page) matches page_size=12. The pricing profile visibility rules in the intent align with the observed response structure.",
+    "final_expected_behavior": "Products display in a 4x3 grid; Not Logged In catalog is shown with no pricing when no price profile applies; correct pricing and catalog visibility match the active price profile; C# catalog takes precedence over price profile when both are configured; list prices display correctly for C# catalog only locations"
+  },
+  {
+    "id": "REC-007",
+    "intent_id": "TI-007",
+    "matched_observations": ["OBS-010"],
+    "decision": "agree",
+    "confidence": 0.79,
+    "reasoning": "OBS-010 shows product names prefixed with NAV Part Numbers (e.g. NAV-CO2-20LB — 20lb CO2 Cylinder), confirming the NAV Part Number prefix behaviour. No direct PSP navigation API call was captured, but the product listing data supports the intent. Confidence is moderate due to missing PDP-to-PSP click observation.",
+    "final_expected_behavior": "NAV Part Number is displayed prefixed to the product name on the catalog listing; PSP opens successfully from the PDP without errors; accurate product specifications are displayed on the PSP"
+  },
+  {
+    "id": "REC-008",
+    "intent_id": "TI-008",
+    "matched_observations": ["OBS-003", "OBS-004"],
+    "decision": "agree",
+    "confidence": 0.86,
+    "reasoning": "OBS-003 confirms adding a product returns item details including NAV Part Number, name, price, and qty. OBS-004 shows the cart correctly reflects the item count and grand total. The Minicart data fields expected by the intent (NAV Part Number, product name, image, price, qty) are present in the API responses.",
+    "final_expected_behavior": "Minicart icon in the header updates to reflect the new cart quantity; Minicart window displays NAV Part Number, product name, image, price, quantity field, and delete icon; price updates when quantity is adjusted with +/-; delete confirmation message is shown; product is removed after confirmation; Checkout CTA redirects to the checkout page"
+  },
+  {
+    "id": "REC-009",
+    "intent_id": "TI-009",
+    "matched_observations": ["OBS-003", "OBS-008"],
+    "decision": "behavior_regressed",
+    "confidence": 0.97,
+    "reasoning": "OBS-008 shows an order with qty=1 placed successfully (HTTP 200) against a location where moq_configured=2. The response explicitly records moq_enforced=false and moq_rejection_reason=null. The intent correctly specifies that orders below MOQ must be blocked with a validation message — the MOQ enforcement logic has stopped firing, which is a clear regression.",
+    "final_expected_behavior": "REGRESSION DETECTED: Order submission MUST be blocked when quantity is below the configured MOQ. The observed system accepted qty=1 (HTTP 200) against moq_configured=2 with moq_enforced=false. The generated test must assert that POST /rest/V1/carts/mine/payment-information with qty < MOQ returns HTTP 4xx and a validation message identifying the MOQ requirement."
+  },
+  {
+    "id": "REC-010",
+    "intent_id": "TI-010",
+    "matched_observations": ["OBS-005", "OBS-006", "OBS-007", "OBS-011"],
+    "decision": "agree",
+    "confidence": 0.83,
+    "reasoning": "OBS-005 confirms Standard and Rush delivery methods are returned with correct fields (carrier_code, amount, estimated_delivery). OBS-006 confirms shipping information can be set and payment methods are returned in response. OBS-007 confirms two payment methods are available. OBS-011 confirms the overused promo code error message matches the spec exactly. Will Call absence in OBS-005 is noted but may be session-specific.",
+    "final_expected_behavior": "Delivery address shows the complete location address; Standard and Rush delivery methods display as radio buttons with correct dates; payment options are available with auto-select when only one exists; promo code discounts are applied; overused promo shows error 'Sorry, this coupon has already been redeemed the maximum number of times at this location'; order is submitted to NAV and redirects to the confirmation page"
+  },
+  {
+    "id": "REC-011",
+    "intent_id": "TI-011",
+    "matched_observations": ["OBS-009"],
+    "decision": "agree",
+    "confidence": 0.88,
+    "reasoning": "OBS-009 confirms the order details response includes increment_id (order number), nav_order_id, and print_receipt_url. These map directly to the Order Number hyperlink and Print Receipt hyperlink elements the intent requires. No divergence detected.",
+    "final_expected_behavior": "Order Number is displayed as a clickable hyperlink; Print Receipt hyperlink is present and functional; Continue Shopping button is present and redirects the user correctly"
+  },
+  {
+    "id": "REC-013",
+    "intent_id": "TI-013",
+    "matched_observations": [],
+    "decision": "no_observation",
+    "confidence": 0.90,
+    "reasoning": "My User tab is an admin UI feature with no REST API calls captured in the observation set. User management operations are not covered by the checkout session observations.",
+    "final_expected_behavior": "Only Primary users with Company Status = Approved can access the My User tab; user listing displays correct details; New User creation shows appropriate errors for incomplete accounts and succeeds for fully activated accounts; Edit, Inactivate, and Activate actions complete without errors"
+  },
+  {
+    "id": "REC-014",
+    "intent_id": "TI-014",
+    "matched_observations": [],
+    "decision": "no_observation",
+    "confidence": 0.90,
+    "reasoning": "Account Services flows (closure requests, new location, delivery day updates) are not covered by the captured API observations, which focused on the checkout session.",
+    "final_expected_behavior": "Non-CO2 users see exactly 3 Account Services options and all form submissions complete successfully; CO2 Primary users see 5 options; Account Closure creates a Salesforce case and updates location status on closure; duplicate closure requests are blocked"
+  },
+  {
+    "id": "REC-015",
+    "intent_id": "TI-015",
+    "matched_observations": ["OBS-002"],
+    "decision": "agree",
+    "confidence": 0.70,
+    "reasoning": "OBS-002 confirms the customer profile API returns company-level fields, partially supporting the My Business Info display. Full three-section layout validation is UI-level and not directly observable from the API response alone.",
+    "final_expected_behavior": "All three sections of the My Business Info page are visible and display accurate, complete business information"
+  },
+  {
+    "id": "REC-016",
+    "intent_id": "TI-016",
+    "matched_observations": ["OBS-002"],
+    "decision": "agree",
+    "confidence": 0.74,
+    "reasoning": "OBS-002 shows customer profile fields (email, pricing_profile_id, payment_status) are returned via the API, consistent with the My Profile editable fields the intent describes. Direct write/update observations are absent but the field structure supports the intent.",
+    "final_expected_behavior": "All profile fields (first name, last name, contact phone number, SMS opt-in, mobile number) are editable and accept new values; updated values are saved and correctly reflected in the My Business Info section"
+  },
+  {
+    "id": "REC-017",
+    "intent_id": "TI-017",
+    "matched_observations": [],
+    "decision": "no_observation",
+    "confidence": 0.88,
+    "reasoning": "No location listing or location detail API call was captured in the observation set. My Location is a UI feature requiring a multi-location account, outside the scope of the single-session checkout capture.",
+    "final_expected_behavior": "All location names and information are displayed in the My Location tab; location names are clickable without errors; clicking a location shows the Location Address and Location Contacts sections"
+  },
+  {
+    "id": "REC-018",
+    "intent_id": "TI-018",
+    "matched_observations": [],
+    "decision": "no_observation",
+    "confidence": 0.88,
+    "reasoning": "No observations were captured for restricted-status locations. Testing order restriction messaging requires accounts in specific Salesforce status states not present in the demo session capture.",
+    "final_expected_behavior": "Each restricted location status displays the correct corresponding error message on screen; the user is prevented from placing an order in all restricted status scenarios"
+  },
+  {
+    "id": "REC-019",
+    "intent_id": "TI-019",
+    "matched_observations": ["OBS-012"],
+    "decision": "agree",
+    "confidence": 0.92,
+    "reasoning": "OBS-012 confirms the orders API returns a paginated list with the correct fields (entity_id, increment_id, status, grand_total, created_at) for a Primary user. The response structure supports both the populated and empty-state scenarios described in the intent.",
+    "final_expected_behavior": "My Orders page loads without errors; orders display correctly based on user role and location access permissions; empty state message 'You haven't placed any orders yet' is shown when no orders exist for the user"
+  }
+]

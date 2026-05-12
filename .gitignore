@@ -1,0 +1,12 @@
+.env
+data/outputs/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+.venv/
+ui/node_modules/
+ui/dist/
+ui/.next/
+*.egg-info/
+.DS_Store

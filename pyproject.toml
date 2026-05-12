@@ -1,0 +1,21 @@
+[project]
+name = "sentinel-prototype"
+version = "0.1.0"
+description = "Sentinel agentic regression testing — demo prototype"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=0.40.0",
+    "openpyxl>=3.1.0",
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.0.0",
+    "rich>=13.0.0",
+    "flask>=3.0.0",
+    "unidiff>=0.7.5",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = []

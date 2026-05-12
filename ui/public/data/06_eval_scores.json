@@ -1,0 +1,80 @@
+[
+  {
+    "id": "EVAL-SS-010",
+    "generation_id": "GEN-010",
+    "test_filename": "PaymentMethodDeletionTest.php",
+    "dimensions": [
+      {
+        "name": "syntactic_validity",
+        "score": 100,
+        "weight": 0.10,
+        "notes": "Valid PHP throughout. Correct TestCase extension, Guzzle Client usage, and PHPUnit assertion calls. No syntax issues."
+      },
+      {
+        "name": "behavior_fidelity",
+        "score": 88,
+        "weight": 0.35,
+        "notes": "testCannotDeletePaymentMethodWithCompletedOrder correctly targets the new 'complete' status boundary. testTokenWithSurroundingWhitespaceIsNormalised correctly exercises the new trim($token) path. Minor gap: does not assert the specific error message text returned on the completed-order block."
+      },
+      {
+        "name": "coverage_delta",
+        "score": 85,
+        "weight": 0.15,
+        "notes": "Two new test methods cover the two new code paths introduced by the diff. No previously-covered paths were regressed."
+      },
+      {
+        "name": "assertion_quality",
+        "score": 82,
+        "weight": 0.25,
+        "notes": "assertNotContains for 404/422 in the whitespace test is correct. The completed-order test's conditional body check on $body['error'] is good defensive practice. Weakness: testCannotDeletePaymentMethodWithCompletedOrder does not assert the response body message string directly."
+      },
+      {
+        "name": "determinism",
+        "score": 80,
+        "weight": 0.15,
+        "notes": "Tests depend on fixture tokens from $_ENV, which is correct practice. The 'completed order' fixture token is an assumption — if the test environment does not have a seeded completed order for this token, the test will trivially pass without exercising the block."
+      }
+    ],
+    "composite": 86.1,
+    "gate_decision": "PASS"
+  },
+  {
+    "id": "EVAL-SS-001",
+    "generation_id": "GEN-001",
+    "test_filename": "OnboardingProcessTest.php",
+    "dimensions": [
+      {
+        "name": "syntactic_validity",
+        "score": 100,
+        "weight": 0.10,
+        "notes": "Valid PHP. Correct namespace, TestCase extension, and Guzzle usage. All assertions use correct PHPUnit API."
+      },
+      {
+        "name": "behavior_fidelity",
+        "score": 84,
+        "weight": 0.35,
+        "notes": "testInvalidFormKeyReturnsJsonErrorWithoutException correctly targets the new logger.warning path and asserts both the HTTP status and the response shape. Does not (and cannot easily) assert the log entry itself — acceptable for an API-level test."
+      },
+      {
+        "name": "coverage_delta",
+        "score": 80,
+        "weight": 0.15,
+        "notes": "Adds one new test method covering the invalid-form-key path with the new logging block. Existing tests remain valid against the updated source."
+      },
+      {
+        "name": "assertion_quality",
+        "score": 84,
+        "weight": 0.25,
+        "notes": "assertFalse($body['success']) is precise. assertIsArray for JSON body is correct. The comment explaining why the 500-guard assertion matters (logger misconfiguration) is appropriately documented."
+      },
+      {
+        "name": "determinism",
+        "score": 78,
+        "weight": 0.15,
+        "notes": "Intentionally omitting form_key to trigger the path is a reliable approach. Minor concern: some Magento configurations auto-generate form keys, which could cause the test to exercise the success path instead — consider adding an explicit invalid form_key value."
+      }
+    ],
+    "composite": 83.05,
+    "gate_decision": "WARN"
+  }
+]

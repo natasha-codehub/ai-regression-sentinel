@@ -1,0 +1,286 @@
+{
+  "test_id": "GEN-001",
+  "source_intents": [
+    {
+      "id": "TI-001",
+      "source_row": 2,
+      "feature_area": "checkout",
+      "action_description": "Log in as a newly onboarded Primary User, navigate to checkout, add a credit card if prompted, and submit an order",
+      "expected_behavior": "Checkout completes successfully; order is submitted and user is redirected to the order confirmation screen",
+      "preconditions": [
+        "User is a Primary user",
+        "iOS Case has been submitted and SF Case ID exists",
+        "Payment Status = Approved",
+        "No NAV ID assigned",
+        "Company status is Approved",
+        "Location is Active or Inactive with an approved payment method"
+      ],
+      "test_data_hints": [
+        "Primary user with iOS SF Case ID present in Salesforce",
+        "Payment Status = Approved",
+        "No NAV ID on the account",
+        "Company = Approved",
+        "Valid credit card for payment entry"
+      ],
+      "original_text": "CF-01 | Immediate Checkout After Onboarding | Smoke | Simulated Checkout Post-Onboarding-eligibility | Primary User; iOS Case submitted (SF Case ID exists); Payment Status = Approved; No NAV ID; Company = Approved; Location = Active or Inactive with approved payment method | 1. Login as the user 2. Proceed to checkout 3. Add credit card if prompted 4. User enters the CC and submits orders"
+    }
+  ],
+  "source_observations": [
+    {
+      "id": "OBS-001",
+      "timestamp": "2025-04-10T09:14:33Z",
+      "session_id": "sess_demo_001",
+      "summary": "Primary user login — returns JWT token successfully",
+      "endpoint": "POST /rest/V1/integration/customer/token",
+      "request": {
+        "method": "POST",
+        "body": {
+          "username": "primary.user@esprigas.com",
+          "password": "[REDACTED]"
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.demo_token"
+      },
+      "context": {
+        "user_type": "primary",
+        "company_status": "Approved",
+        "location_status": "Active",
+        "pricing_profile": "PP-INDUSTRIAL-001",
+        "nav_id": null,
+        "ios_case_id": "SF-CASE-88234",
+        "payment_status": "Approved"
+      }
+    },
+    {
+      "id": "OBS-002",
+      "timestamp": "2025-04-10T09:14:41Z",
+      "session_id": "sess_demo_001",
+      "summary": "Get customer profile — confirms no NAV ID, IOS case present, payment approved",
+      "endpoint": "GET /rest/V1/customers/me",
+      "request": {
+        "method": "GET"
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": 1042,
+          "email": "primary.user@esprigas.com",
+          "company_status": "Approved",
+          "location_status": "Active",
+          "pricing_profile_id": "PP-INDUSTRIAL-001",
+          "nav_id": null,
+          "ios_case_id": "SF-CASE-88234",
+          "payment_status": "Approved",
+          "bank_verification_status": "complete"
+        }
+      },
+      "context": {
+        "user_type": "primary",
+        "nav_id": null
+      }
+    },
+    {
+      "id": "OBS-006",
+      "timestamp": "2025-04-10T09:17:44Z",
+      "session_id": "sess_demo_001",
+      "summary": "Set shipping information — Standard delivery selected",
+      "endpoint": "POST /rest/V1/carts/mine/shipping-information",
+      "request": {
+        "method": "POST",
+        "body": {
+          "addressInformation": {
+            "shipping_address": {
+              "firstname": "Demo",
+              "lastname": "User",
+              "street": [
+                "123 Industrial Blvd"
+              ],
+              "city": "Houston",
+              "region_code": "TX",
+              "postcode": "77001",
+              "telephone": "555-0100"
+            },
+            "shipping_carrier_code": "standard",
+            "shipping_method_code": "standard"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "payment_methods": [
+            "stripe_cc",
+            "invoice"
+          ],
+          "totals": {
+            "subtotal": 34.99,
+            "shipping_amount": 0.0,
+            "grand_total": 34.99
+          }
+        }
+      },
+      "context": {
+        "user_type": "primary"
+      }
+    },
+    {
+      "id": "OBS-008",
+      "timestamp": "2025-04-10T09:18:52Z",
+      "session_id": "sess_demo_001",
+      "summary": "Place order with qty=1 (below MOQ=2) — order ACCEPTED, MOQ check did not fire",
+      "endpoint": "POST /rest/V1/carts/mine/payment-information",
+      "request": {
+        "method": "POST",
+        "body": {
+          "paymentMethod": {
+            "method": "stripe_cc",
+            "additional_data": {
+              "cc_last4": "4242"
+            }
+          },
+          "email": "primary.user@esprigas.com"
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "order_id": 50291,
+          "order_increment_id": "100050291",
+          "status": "pending",
+          "items_ordered": [
+            {
+              "sku": "CO2-CYLINDER-20LB",
+              "qty_ordered": 1
+            }
+          ],
+          "moq_enforced": false,
+          "moq_rejection_reason": null
+        }
+      },
+      "context": {
+        "user_type": "primary",
+        "moq_configured": 2,
+        "qty_submitted": 1
+      }
+    }
+  ],
+  "reconciliation": {
+    "id": "REC-001",
+    "intent_id": "TI-001",
+    "matched_observations": [
+      "OBS-001",
+      "OBS-002",
+      "OBS-006",
+      "OBS-008"
+    ],
+    "decision": "agree",
+    "confidence": 0.91,
+    "reasoning": "OBS-001 confirms login succeeds for a Primary user with iOS case and Approved payment status. OBS-002 confirms no NAV ID on the account. OBS-008 confirms order placement returns HTTP 200 with a valid order_id. The full onboarding-to-checkout flow matches the intent.",
+    "final_expected_behavior": "Checkout completes successfully; order is submitted and user is redirected to the order confirmation screen"
+  },
+  "classification": {
+    "level": "api",
+    "reasoning": "Behavior spans an HTTP POST controller that returns JSON — API level is the right fit. Unit testing OnboardingProcess::execute() would require mocking the entire Magento DI graph. E2E would be too brittle for this smoke check.",
+    "alternatives_considered": [
+      {
+        "level": "unit",
+        "reason_rejected": "Would require mocking the Magento DI container, ObjectManager, and session — integration value too low relative to mocking cost.",
+        "_demo_synthetic": true
+      },
+      {
+        "level": "e2e",
+        "reason_rejected": "Browser automation overhead unjustified for a single POST endpoint smoke check; E2E reserved for full user flows.",
+        "_demo_synthetic": true
+      }
+    ]
+  },
+  "generation": {
+    "prompt_template": "prompts/03_generation.md",
+    "model": "claude-sonnet-4-6",
+    "tokens_in": 3847,
+    "tokens_out": 892,
+    "latency_ms": 6240,
+    "attempt_number": 1,
+    "alternatives_rejected": [
+      {
+        "draft_summary": "Initial draft omitted the group_id fallback path entirely.",
+        "reason_rejected": "Save.php line 80-82 implements a critical fallback when group_id is absent; a test that ignores it has low coverage delta.",
+        "_demo_synthetic": true
+      }
+    ],
+    "_synthetic_fields": [
+      "tokens_in",
+      "tokens_out",
+      "latency_ms",
+      "attempt_number",
+      "alternatives_rejected"
+    ]
+  },
+  "eval": {
+    "dimensions": [
+      {
+        "name": "syntactic_validity",
+        "score": 100,
+        "weight": 0.1,
+        "notes": "Valid PHP throughout. Correct TestCase extension, proper Guzzle Client instantiation, type declarations are consistent."
+      },
+      {
+        "name": "behavior_fidelity",
+        "score": 85,
+        "weight": 0.35,
+        "notes": "Covers the unauthenticated redirect (Save.php line 70-73), the JSON response structure, and the end-to-end checkout flow. Missing: does not assert that the order confirmation response contains a non-null order_id from NAV (nav_order_id), which is part of the agreed expected behavior."
+      },
+      {
+        "name": "coverage_delta",
+        "score": 82,
+        "weight": 0.15,
+        "notes": "Adds new coverage for the onboarding save controller and the post-login checkout path. The group_id fallback test (testMissingGroupIdFallsBackToCustomerGroup) exercises Save.php line 80-82, which would otherwise have no API-level test."
+      },
+      {
+        "name": "assertion_quality",
+        "score": 82,
+        "weight": 0.25,
+        "notes": "assertArrayHasKey('success') is good. testCheckoutSucceedsAfterOnboarding asserts assertIsInt and assertGreaterThan(0) on orderId — specific and correct. Weakness: testOnboardingPostReturnsJsonWithSuccessKey does not assert the value of the 'success' key (true vs false)."
+      },
+      {
+        "name": "determinism",
+        "score": 88,
+        "weight": 0.15,
+        "notes": "No random values or clock dependencies. All test data comes from env vars. Minor risk: testCheckoutSucceedsAfterOnboarding leaves an order in the system — add a tearDown to cancel or the next run may see unexpected cart/order state."
+      }
+    ],
+    "composite": 85.75,
+    "gate_decision": "PASS"
+  },
+  "validation": {
+    "ran_against_current": true,
+    "mutation_caught": true,
+    "flake_signals": [],
+    "_demo_synthetic": true
+  },
+  "commit_metadata": {
+    "pr_number": 1,
+    "signing_status": "signed",
+    "branch": "sentinel/bootstrap-generated-tests",
+    "timestamp": "2026-05-05T18:30:00Z",
+    "_demo_synthetic": true
+  },
+  "steering_signals_applied": [
+    {
+      "rule_id": "RULE-001",
+      "rule_text": "Always cite source file and line number in test method docblock for traceability.",
+      "set_on": "2026-05-01T09:00:00Z",
+      "set_by": "natasha.agarwal@company.com",
+      "_demo_synthetic": true
+    },
+    {
+      "rule_id": "RULE-002",
+      "rule_text": "Prefer assertSame over assertEquals for HTTP status code assertions (strict type safety).",
+      "set_on": "2026-05-01T09:00:00Z",
+      "set_by": "natasha.agarwal@company.com",
+      "_demo_synthetic": true
+    }
+  ]
+}

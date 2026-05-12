@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="vendor/autoload.php"
+         colors="true"
+         stopOnError="false"
+         stopOnFailure="false">
+    <testsuites>
+        <testsuite name="Sentinel Generated Tests">
+            <directory>tests/</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <env name="MAGENTO_BASE_URL"             value="http://localhost:8080"/>
+        <env name="TEST_PRIMARY_USER_EMAIL"      value="primary.user@esprigas.com"/>
+        <env name="TEST_PRIMARY_USER_PASSWORD"   value="test_password_123"/>
+        <!-- TEST_ADMIN_OTP_SESSION intentionally omitted — triggers markTestSkipped -->
+    </php>
+</phpunit>

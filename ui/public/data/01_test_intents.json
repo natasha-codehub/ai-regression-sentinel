@@ -1,0 +1,321 @@
+[
+  {
+    "id": "TI-001",
+    "source_row": 2,
+    "feature_area": "checkout",
+    "action_description": "Log in as a newly onboarded Primary User, navigate to checkout, add a credit card if prompted, and submit an order",
+    "expected_behavior": "Checkout completes successfully; order is submitted and user is redirected to the order confirmation screen",
+    "preconditions": [
+      "User is a Primary user",
+      "iOS Case has been submitted and SF Case ID exists",
+      "Payment Status = Approved",
+      "No NAV ID assigned",
+      "Company status is Approved",
+      "Location is Active or Inactive with an approved payment method"
+    ],
+    "test_data_hints": [
+      "Primary user with iOS SF Case ID present in Salesforce",
+      "Payment Status = Approved",
+      "No NAV ID on the account",
+      "Company = Approved",
+      "Valid credit card for payment entry"
+    ],
+    "original_text": "CF-01 | Immediate Checkout After Onboarding | Smoke | Simulated Checkout Post-Onboarding-eligibility | Primary User; iOS Case submitted (SF Case ID exists); Payment Status = Approved; No NAV ID; Company = Approved; Location = Active or Inactive with approved payment method | 1. Login as the user 2. Proceed to checkout 3. Add credit card if prompted 4. User enters the CC and submits orders"
+  },
+  {
+    "id": "TI-002",
+    "source_row": 3,
+    "feature_area": "checkout",
+    "action_description": "Log in as a Primary User with a pending bank account verification and attempt to place an order, then inspect outbound logs and NAV order entry",
+    "expected_behavior": "Bank verification prompt is displayed when the user attempts to place an order; outbound logs record the verification request; NAV order entry is not created until verification is complete",
+    "preconditions": [
+      "User is a Primary user",
+      "iOS case has been submitted",
+      "Bank account verification is pending"
+    ],
+    "test_data_hints": [
+      "Primary user with pending bank account verification",
+      "iOS SF Case in submitted state",
+      "Access to outbound logs",
+      "Access to NAV order entry"
+    ],
+    "original_text": "CF-02 | Immediate Checkout After Onboarding | Smoke | Bank Verification Prompt | Primary user has submitted IOS case, bank account verification is pending | 1. Login as Primary User. 2. Try placing an order. 3. check outbound logs. 4. check NAV order entry."
+  },
+  {
+    "id": "TI-003",
+    "source_row": 4,
+    "feature_area": "checkout",
+    "action_description": "Log in as a Primary User with no NAV ID assigned, place an order, and inspect the order confirmation screen and Salesforce Case Queue",
+    "expected_behavior": "Order confirmation screen is displayed; a new Salesforce case is created and visible in the SF Case Queue; NAV order entry is created for the order",
+    "preconditions": [
+      "User is a Primary user",
+      "IOS case has been submitted",
+      "Payment Status = Approved",
+      "No NAV ID assigned to the user"
+    ],
+    "test_data_hints": [
+      "Primary user account with no NAV ID",
+      "IOS SF Case in submitted state",
+      "Payment Status = Approved in Salesforce"
+    ],
+    "original_text": "CF-03 | Immediate Checkout After Onboarding | Sanity | NAV ORDER ENTRY & SF Case Creation | User is a Primary, has submitted IOS case, Payment Status = Approved, no NAV assigned | 1. Login as Primary User without NAV. 2. Place an order. 3. Check confirmation screen and SF Case Queue."
+  },
+  {
+    "id": "TI-004",
+    "source_row": 5,
+    "feature_area": "pricing",
+    "action_description": "Log in as any user after a pricing profile change, observe the dashboard popup, and inspect product prices reflecting the updated pricing profile",
+    "expected_behavior": "A pricing profile mismatch popup is displayed on the dashboard after login; product prices on the catalog reflect the updated pricing profile",
+    "preconditions": [
+      "A pricing profile change has occurred for the user's location"
+    ],
+    "test_data_hints": [
+      "Any user account whose location recently had a pricing profile change",
+      "Product catalog with prices visible before and after the profile change"
+    ],
+    "original_text": "CF-04 | Immediate Checkout After Onboarding | Sanity | Pricing Profile Mismatch Pop-up | Post-Pricing Profile Change | 1. Login after setup (Any user) 2. check the popup on the dashboard 3. check the price of the product after pp changes"
+  },
+  {
+    "id": "TI-006",
+    "source_row": 7,
+    "feature_area": "pricing",
+    "action_description": "Observe product catalog display, pricing visibility, and catalog hierarchy across five location and user configurations: logged out, price profile only, price profile with no mapping, price profile plus C# catalog, and C# catalog only",
+    "expected_behavior": "Products display in a 4x3 grid; Not Logged In catalog is shown with no pricing when no price profile applies; correct pricing and catalog visibility match the active price profile; C# catalog takes precedence over price profile when both are configured; list prices display correctly for C# catalog only locations",
+    "preconditions": [
+      "User has a valid EspriGas account",
+      "Website is accessible",
+      "Product catalog is fully loaded"
+    ],
+    "test_data_hints": [
+      "BP location with no price profile configured",
+      "BP location with a price profile and product mappings",
+      "BP location with a price profile but no product mappings in product catalogue",
+      "BP location with both a price profile and C# catalog mapping",
+      "BP location with C# catalog mapping only and no price profile"
+    ],
+    "original_text": "CF-06 | Product Visibility and Display Based on User Login & Price Profile Configuration | Smoke | Verify that the product listing page displays products in a 4x3 grid and that visibility, catalog view, and pricing behave correctly based on user login status, price profile, and catalog hierarchy | User must have a valid EspriGas account and be logged in. The website must be accessible. The product catalog should be fully loaded. | Observe product layout and catalog view under the following configurations: Logged out / No Price Profile; Location with Price Profile; Location PP had no mapping; Location with both Price Profile and C# catalog; Location with only C# catalog."
+  },
+  {
+    "id": "TI-007",
+    "source_row": 8,
+    "feature_area": "product",
+    "action_description": "Navigate from the product catalog to a Product Detail Page, click the image or product name link to open the Product Specification Page, and review the specifications displayed",
+    "expected_behavior": "NAV Part Number is displayed prefixed to the product name on the catalog listing; PSP opens successfully from the PDP without errors; accurate product specifications are displayed on the PSP",
+    "preconditions": [
+      "User is logged in",
+      "At least one product with an associated PSP is available in the catalog"
+    ],
+    "test_data_hints": [
+      "Product with an associated Product Specification Page",
+      "NAV Part Number mapped and prefixed to the product name"
+    ],
+    "original_text": "CF-07 | PSP (product specification page) | Smoke | Verify that users can successfully navigate from the Product Detail Page (PDP) to the Product Specification Page (PSP) for any product and view accurate product specifications | User is logged in. At least one product with an associated PSP is available in the catalog | Navigate to the product catalog; verify NAV Part Number is displayed prefixed to product name; click on any product to open its PDP; click the image or the product name link that opens the PSP; observe the PSP for the selected product."
+  },
+  {
+    "id": "TI-008",
+    "source_row": 9,
+    "feature_area": "cart",
+    "action_description": "Add a product to the cart as a logged-in user, inspect the Minicart for correct product details, adjust quantity, trigger and confirm a product deletion, and click the Checkout CTA",
+    "expected_behavior": "Minicart icon in the header updates to reflect the new cart quantity; Minicart window displays NAV Part Number, product name, image, price, quantity field, and delete icon; price updates when quantity is adjusted with +/-; delete confirmation message 'Are you sure you would like to remove this item from the shopping cart?' is shown on clicking the trash bin icon; product is removed and Minicart updates after confirmation; Checkout CTA displays hover state and redirects to the Shopping Cart / Checkout page",
+    "preconditions": [
+      "User is logged in",
+      "Product catalog and NAV Part mappings are configured",
+      "At least one product is available to add to cart"
+    ],
+    "test_data_hints": [
+      "Product with a NAV Part Number mapping",
+      "Product with adjustable quantity",
+      "Cart with at least one item for delete confirmation flow"
+    ],
+    "original_text": "CF-08 | Minicart Functionality – Product Addition, Display, NAV Part Number & Delete Confirmation | Smoke | To validate the complete functionality of the Minicart, including the correct display of product details (name, image, quantity, price, NAV Part number), the visibility and behavior of the Checkout pop-up, and the confirmation flow for product deletion | User is logged in. Product catalog and NAV Part mappings are configured. At least one product is available to add to cart | Navigate to the product catalog; add a product; validate Minicart icon and window; adjust quantity; click delete icon; confirm deletion; verify Checkout CTA."
+  },
+  {
+    "id": "TI-009",
+    "source_row": 10,
+    "feature_area": "checkout",
+    "action_description": "Add a product below the MOQ for the location and attempt to submit an order; repeat with quantity at or above MOQ; test with CSJ MOQ = 1; test with a 10lbs cylinder; test with no CSJ MOQ set",
+    "expected_behavior": "Order submission is blocked with a validation message when quantity is below MOQ; order proceeds when quantity meets or exceeds MOQ; CSJ MOQ = 1 allows single-unit orders; 10lbs cylinder enforces MOQ correctly; system defaults to MOQ = 2 when no CSJ value is configured for the location",
+    "preconditions": [
+      "System is on Magento 2.4.6-p9",
+      "User is logged in",
+      "At least one product is in the cart",
+      "CSJ minimum order quantity is configured for the location (C number) or defaults to 2"
+    ],
+    "test_data_hints": [
+      "Location (C number) with CSJ MOQ value configured",
+      "Small CO2 or nitrogen cylinder product",
+      "10lbs cylinder product",
+      "Location with no CSJ MOQ set (expected default: 2)",
+      "Location with CSJ MOQ explicitly set to 1"
+    ],
+    "original_text": "CF-09 | MOQ | Smoke | To verify that the system enforces the Minimum Order Quantity (MOQ) during checkout based on the rules set by the CSJ for the location (C number) | System is upgraded to Magento 2.4.6-p9. User is logged in. At least one product is in the cart. CSJ minimum order quantity value is configured for the location or defaults to 2 if not set | Log in; add product with quantity less than MOQ; proceed to checkout; click Submit Order; observe message; repeat with quantity >= MOQ; repeat with CSJ MOQ = 1; repeat with 10lbs cylinder; repeat with no MOQ value set."
+  },
+  {
+    "id": "TI-010",
+    "source_row": 11,
+    "feature_area": "checkout",
+    "action_description": "Navigate to the checkout page from the Minicart and validate delivery address, shipping policy link, all delivery methods, payment options, order summary quantity rules, promo code application, and order submission to NAV",
+    "expected_behavior": "Delivery address shows the complete location address; Shipping Policy link opens the correct message; at least two delivery methods (Standard, Rush, Will Call) display as radio buttons; Standard Delivery shows expected date; Rush Delivery shows 2-day date; Will Call is visible only for eligible Industrial and Heartland/CO2 customers; Will Call selection sets delivery charge to 0; payment auto-selects when only one option exists; order summary shows correct product details with quantity constraints; promo code applies discount; overused promo shows error 'Sorry, this coupon has already been redeemed the maximum number of times at this location'; order is submitted to NAV and redirects to the order confirmation page",
+    "preconditions": [
+      "User is logged in",
+      "User has at least one product in the cart",
+      "User navigates to Checkout page from Minicart"
+    ],
+    "test_data_hints": [
+      "Location with Standard, Rush, and Will Call delivery methods configured",
+      "Heartland group customer with Will Call enabled",
+      "Customer account with a payment card on file",
+      "Customer account with no payment card on file",
+      "Valid promo code",
+      "Promo code that has exceeded its redemption limit",
+      "Bev Stripe payment method account",
+      "Industrial customer for Will Call eligibility",
+      "Buying Group = Heartland for pick-up quantity warning test"
+    ],
+    "original_text": "CF-10 | Checkout Page | Smoke | Verify Complete Checkout Page Functionality | User is logged in. User has at least one product in the cart. User navigates to Checkout page from Minicart | Navigate to Shopping Cart from Minicart; verify Delivery Address; verify Shipping Policy link; verify delivery methods; verify payment options; verify order summary; apply promo codes; submit order and verify NAV entry and confirmation redirect."
+  },
+  {
+    "id": "TI-011",
+    "source_row": 12,
+    "feature_area": "orders",
+    "action_description": "Place an order and reach the Order Confirmation screen, then validate the Order Number hyperlink, Print Receipt hyperlink, and Continue Shopping button",
+    "expected_behavior": "Order Number is displayed as a clickable hyperlink on the confirmation screen; Print Receipt hyperlink is present and functional; Continue Shopping button is present and redirects the user correctly",
+    "preconditions": [
+      "User is logged in",
+      "An order has been successfully placed and the user is on the Order Confirmation screen"
+    ],
+    "test_data_hints": [
+      "Completed order for order number hyperlink validation",
+      "Print receipt functionality enabled for the account"
+    ],
+    "original_text": "CF-11 | Order Confirmation Screen | Smoke | To validate that all key interactive elements on the Order Confirmation screen function correctly and redirect users to their respective destinations | User is logged in. An order has been successfully placed and the user is on the Order Confirmation screen | Log in; add product(s) to cart; proceed to checkout; complete payment; reach Order Confirmation screen; validate Order Number hyperlink, Print Receipt hyperlink, Continue Shopping button."
+  },
+  {
+    "id": "TI-013",
+    "source_row": 14,
+    "feature_area": "admin",
+    "action_description": "Navigate the My User tab as a Primary user: inspect the user listing, attempt New User creation under three account setup states, edit an existing user, and toggle a sub-user between active and inactive",
+    "expected_behavior": "Only Primary users with Company Status = Approved can access the My User tab; users without the Primary role or with Company Status not Approved cannot access it; user listing displays correct details; New User creation shows appropriate errors for accounts missing a Salesforce Account ID and for partially activated accounts; New User succeeds for fully activated accounts; Edit, Inactivate, and Activate actions complete without errors",
+    "preconditions": [
+      "Primary User is logged in",
+      "Company Status = Approved for the primary test scenario"
+    ],
+    "test_data_hints": [
+      "Primary user with Company Status = Approved",
+      "User account without the Primary role",
+      "User account with Company Status not equal to Approved",
+      "Account missing Salesforce Account ID",
+      "Partially activated account",
+      "Fully activated and properly set up account",
+      "Active sub-user for inactivation test",
+      "Inactive sub-user for activation test"
+    ],
+    "original_text": "CF-13 | My User Tab | Smoke | To validate the visibility, access permissions, and core functionalities of the My User tab including user listing, new user creation, editing, activation/inactivation, and related warnings or messages | Primary User is logged in | Log in as Primary User with Company = Approved; log in as user without Primary role; verify user listing; click New User with improperly setup account; click New User with partially activated account; click New User with fully activated account; click Edit; click Inactivate; confirm inactivation; click Activate."
+  },
+  {
+    "id": "TI-014",
+    "source_row": 15,
+    "feature_area": "account-services",
+    "action_description": "Log in as a Non-CO2 user and verify the 3 Account Services options and form submissions; log in as a CO2 Primary user and verify 5 options including Account Closure, New Location request, delivery day update, address update, and Need Help",
+    "expected_behavior": "Non-CO2 users see exactly 3 Account Services options (request delivery day update, address update, need help) and all form submissions complete successfully; CO2 Primary users see 5 options; Account Closure creates a Salesforce case, updates location status to inactive when the SF case is closed, and blocks duplicate closure requests for the same location; New Location request navigates through all tabs (Business Info, CO2 Ops, Payment, Review); BP admin Account Services Log records closure submissions",
+    "preconditions": [
+      "Users are onboarded and categorized as CO2 or Non-CO2 in Salesforce",
+      "Primary user is logged in and on the Account Services section"
+    ],
+    "test_data_hints": [
+      "Non-CO2 onboarded user account",
+      "CO2 Primary user account",
+      "Location eligible for a closure request",
+      "Active Salesforce integration for case creation",
+      "BP admin access to verify Account Services Log"
+    ],
+    "original_text": "CF-14 | Account Services | Sanity | Account Services Access & Functional Validation Based on Industry Type (CO2 vs Non-CO2) | Users are onboarded and categorized correctly in Salesforce as either CO2 or Non-CO2. Primary user is logged in and navigated to the Account Services section | Log in as Non-CO2 user; verify 3 options; verify form submissions; log in as CO2 Primary user; verify 5 options; test Account Closure; test New Location request; test delivery day update; test address update; test Need Help / Contact Us."
+  },
+  {
+    "id": "TI-015",
+    "source_row": 16,
+    "feature_area": "profile",
+    "action_description": "Log in as a Primary customer and navigate to the My Business Info page to verify all three information sections display correctly",
+    "expected_behavior": "All three sections of the My Business Info page are visible and display accurate, complete business information",
+    "preconditions": [
+      "System is on Magento 2.4.6-p9",
+      "User is logged in"
+    ],
+    "test_data_hints": [
+      "Primary customer account with complete business information across all three sections"
+    ],
+    "original_text": "CF-15 | My Business Info | Smoke | Verify if all the information is showing in three sections and check if all the section is correctly displayed | 1. The system is upgraded to Magento 2.4.6-p9. 2. User is logged in | 1. Log in as a primary customer. 2. Navigate to the My User page."
+  },
+  {
+    "id": "TI-016",
+    "source_row": 17,
+    "feature_area": "profile",
+    "action_description": "Log in as a Primary customer, navigate to My Profile, update first name, last name, contact phone number, SMS opt-in, and mobile number, then navigate to My Business Info to verify the changes",
+    "expected_behavior": "All profile fields (first name, last name, contact phone number, SMS opt-in, mobile number) are editable and accept new values; updated values are saved and correctly reflected in the My Business Info section",
+    "preconditions": [
+      "System is on Magento 2.4.6-p9",
+      "User is logged in"
+    ],
+    "test_data_hints": [
+      "Primary customer account",
+      "New values for first name, last name, phone number, and mobile number",
+      "SMS opt-in toggle"
+    ],
+    "original_text": "CF-16 | My Profile | Smoke | Verify if it provides an option to edit the user's details, including first name, last name, contact phone number, opt-in SMS option, and contact mobile number | 1. The system is upgraded to Magento 2.4.6-p9. 2. User is logged in | 1. Log in as a primary customer. 2. Navigate to the My Profile page. 3. Fill in the details and verify system reflects the new updated values in My Business Info."
+  },
+  {
+    "id": "TI-017",
+    "source_row": 18,
+    "feature_area": "location",
+    "action_description": "Log in as a Primary customer with multiple locations and navigate to the My Location tab to verify the location list and location detail view",
+    "expected_behavior": "All location names and information are displayed in the My Location tab; location names are clickable without errors; clicking a location shows the Location Address and Location Contacts sections",
+    "preconditions": [
+      "System is on Magento 2.4.6-p9",
+      "Primary User is logged in",
+      "User has multiple locations assigned"
+    ],
+    "test_data_hints": [
+      "Primary user account with multiple locations",
+      "Locations with complete address and contact information"
+    ],
+    "original_text": "CF-17 | My Location | Sanity | Verify if this shows all the location name and information. Also verify the location name is clickable without any errors. On clicking the location, it shows Location Address and Location Contacts | 1. The system is upgraded to Magento 2.4.6-p9. 2. Primary User is logged in, this tab is only displayed when user has multiple locations | 1. Log in as an onboarded customer. 2. Navigate to My Location."
+  },
+  {
+    "id": "TI-018",
+    "source_row": 19,
+    "feature_area": "location",
+    "action_description": "Log in as a user assigned to a location with each restricted status and attempt to place an order for each: Inactive, Auto Pay Failure, Closure in Progress, Auto-Term, Collection, Credit Hold, Payment Setup Missing, Prenote, License/OP Hold",
+    "expected_behavior": "Each restricted location status displays the correct corresponding error message on screen; the user is prevented from placing an order in all restricted status scenarios",
+    "preconditions": [
+      "User is registered and assigned to a location with one of the restricted statuses in Salesforce"
+    ],
+    "test_data_hints": [
+      "Location with status: Inactive",
+      "Location with status: Auto Pay Failure",
+      "Location with status: Closure in Progress",
+      "Location with status: Auto-Term",
+      "Location with status: Collection",
+      "Location with status: Credit Hold",
+      "Location with status: Payment Setup Missing",
+      "Location with status: Prenote",
+      "Location with status: License/OP Hold"
+    ],
+    "original_text": "CF-18 | My Location | Sanity | Verify Order Restrictions and Messaging Based on Location/Account Status | The user is registered and assigned to a location with one of the statuses listed below in Salesforce | For each status (Inactive, Auto Pay Failure, Closure in Progress, Auto-Term, Collection, Credit Hold, Payment Setup Missing, Prenote, License/OP Hold): log in, attempt to place an order, verify the displayed message matches expected value, and ensure user is restricted from placing an order."
+  },
+  {
+    "id": "TI-019",
+    "source_row": 20,
+    "feature_area": "orders",
+    "action_description": "Log in as a Primary or sub-user customer, navigate to the My Orders page, and validate page load, order display based on user role and location, and the empty state message",
+    "expected_behavior": "My Orders page loads without errors; orders display correctly based on user role and location access permissions; empty state message 'You haven't placed any orders yet' is shown when no orders exist for the user",
+    "preconditions": [
+      "User is logged in"
+    ],
+    "test_data_hints": [
+      "Primary user account with existing orders",
+      "Sub-user account with existing orders",
+      "Account with no order history for empty state message test"
+    ],
+    "original_text": "CF-19 | My Orders | Smoke | My Orders Page Load & Display Based on User Access | User has logged in | Log in as Primary or sub-user; navigate to My Orders page; confirm page loads without errors; validate orders display based on user role and location; verify empty state message if no orders exist."
+  }
+]

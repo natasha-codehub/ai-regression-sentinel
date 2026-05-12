@@ -1,0 +1,217 @@
+{
+  "test_id": "GEN-009",
+  "source_intents": [
+    {
+      "id": "TI-009",
+      "source_row": 10,
+      "feature_area": "checkout",
+      "action_description": "Add a product below the MOQ for the location and attempt to submit an order; repeat with quantity at or above MOQ; test with CSJ MOQ = 1; test with a 10lbs cylinder; test with no CSJ MOQ set",
+      "expected_behavior": "Order submission is blocked with a validation message when quantity is below MOQ; order proceeds when quantity meets or exceeds MOQ; CSJ MOQ = 1 allows single-unit orders; 10lbs cylinder enforces MOQ correctly; system defaults to MOQ = 2 when no CSJ value is configured for the location",
+      "preconditions": [
+        "System is on Magento 2.4.6-p9",
+        "User is logged in",
+        "At least one product is in the cart",
+        "CSJ minimum order quantity is configured for the location (C number) or defaults to 2"
+      ],
+      "test_data_hints": [
+        "Location (C number) with CSJ MOQ value configured",
+        "Small CO2 or nitrogen cylinder product",
+        "10lbs cylinder product",
+        "Location with no CSJ MOQ set (expected default: 2)",
+        "Location with CSJ MOQ explicitly set to 1"
+      ],
+      "original_text": "CF-09 | MOQ | Smoke | To verify that the system enforces the Minimum Order Quantity (MOQ) during checkout based on the rules set by the CSJ for the location (C number) | System is upgraded to Magento 2.4.6-p9. User is logged in. At least one product is in the cart. CSJ minimum order quantity value is configured for the location or defaults to 2 if not set | Log in; add product with quantity less than MOQ; proceed to checkout; click Submit Order; observe message; repeat with quantity >= MOQ; repeat with CSJ MOQ = 1; repeat with 10lbs cylinder; repeat with no MOQ value set."
+    }
+  ],
+  "source_observations": [
+    {
+      "id": "OBS-003",
+      "timestamp": "2025-04-10T09:16:02Z",
+      "session_id": "sess_demo_001",
+      "summary": "Add CO2 cylinder to cart — qty=1, below configured MOQ of 2",
+      "endpoint": "POST /rest/V1/carts/mine/items",
+      "request": {
+        "method": "POST",
+        "body": {
+          "cartItem": {
+            "sku": "CO2-CYLINDER-20LB",
+            "qty": 1,
+            "quote_id": "cart_abc123"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "item_id": 91,
+          "sku": "CO2-CYLINDER-20LB",
+          "qty": 1,
+          "name": "NAV-CO2-20LB — 20lb CO2 Cylinder",
+          "price": 34.99,
+          "nav_part_number": "NAV-CO2-20LB",
+          "moq_configured": 2,
+          "moq_warning": null
+        }
+      },
+      "context": {
+        "user_type": "primary",
+        "cart_id": "cart_abc123"
+      }
+    },
+    {
+      "id": "OBS-008",
+      "timestamp": "2025-04-10T09:18:52Z",
+      "session_id": "sess_demo_001",
+      "summary": "Place order with qty=1 (below MOQ=2) — order ACCEPTED, MOQ check did not fire",
+      "endpoint": "POST /rest/V1/carts/mine/payment-information",
+      "request": {
+        "method": "POST",
+        "body": {
+          "paymentMethod": {
+            "method": "stripe_cc",
+            "additional_data": {
+              "cc_last4": "4242"
+            }
+          },
+          "email": "primary.user@esprigas.com"
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "order_id": 50291,
+          "order_increment_id": "100050291",
+          "status": "pending",
+          "items_ordered": [
+            {
+              "sku": "CO2-CYLINDER-20LB",
+              "qty_ordered": 1
+            }
+          ],
+          "moq_enforced": false,
+          "moq_rejection_reason": null
+        }
+      },
+      "context": {
+        "user_type": "primary",
+        "moq_configured": 2,
+        "qty_submitted": 1
+      }
+    }
+  ],
+  "reconciliation": {
+    "id": "REC-009",
+    "intent_id": "TI-009",
+    "matched_observations": [
+      "OBS-003",
+      "OBS-008"
+    ],
+    "decision": "behavior_regressed",
+    "confidence": 0.97,
+    "reasoning": "OBS-008 shows an order with qty=1 placed successfully (HTTP 200) against a location where moq_configured=2. The response explicitly records moq_enforced=false and moq_rejection_reason=null. The intent correctly specifies that orders below MOQ must be blocked with a validation message — the MOQ enforcement logic has stopped firing, which is a clear regression.",
+    "final_expected_behavior": "REGRESSION DETECTED: Order submission MUST be blocked when quantity is below the configured MOQ. The observed system accepted qty=1 (HTTP 200) against moq_configured=2 with moq_enforced=false. The generated test must assert that POST /rest/V1/carts/mine/payment-information with qty < MOQ returns HTTP 4xx and a validation message identifying the MOQ requirement."
+  },
+  "classification": {
+    "level": "api",
+    "reasoning": "MOQ enforcement is implemented in the checkout REST API pipeline. API-level tests can directly probe the rejection behavior by submitting orders with varying quantities and asserting HTTP status codes.",
+    "alternatives_considered": [
+      {
+        "level": "unit",
+        "reason_rejected": "MOQ enforcement fires inside the Magento checkout pipeline — unit testing requires mocking quote, cart, and CSJ repositories which obscures the actual regression path.",
+        "_demo_synthetic": true
+      },
+      {
+        "level": "e2e",
+        "reason_rejected": "MOQ validation is a REST API concern; E2E via browser cannot easily assert on raw HTTP status codes or inspect the exact rejection message.",
+        "_demo_synthetic": true
+      }
+    ]
+  },
+  "generation": {
+    "prompt_template": "prompts/03_generation.md",
+    "model": "claude-sonnet-4-6",
+    "tokens_in": 4103,
+    "tokens_out": 1038,
+    "latency_ms": 7120,
+    "attempt_number": 1,
+    "alternatives_rejected": [
+      {
+        "draft_summary": "First draft asserted assertSame(200) for below-MOQ order, treating the regression as expected behaviour.",
+        "reason_rejected": "Reconciliation is behavior_regressed — test must assert HTTP 4xx for below-MOQ, not 200. Draft inverted the signal.",
+        "_demo_synthetic": true
+      }
+    ],
+    "_synthetic_fields": [
+      "tokens_in",
+      "tokens_out",
+      "latency_ms",
+      "attempt_number",
+      "alternatives_rejected"
+    ]
+  },
+  "eval": {
+    "dimensions": [
+      {
+        "name": "syntactic_validity",
+        "score": 100,
+        "weight": 0.1,
+        "notes": "Valid PHP. clearCart() helper is clean. All assertions use correct PHPUnit methods."
+      },
+      {
+        "name": "behavior_fidelity",
+        "score": 95,
+        "weight": 0.35,
+        "notes": "Excellent regression coverage: tests qty<MOQ (rejection), qty=MOQ (acceptance), and CSJ MOQ=1 (single-unit allowed). All three paths from the reconciliation's final_expected_behavior are exercised. Minor gap: does not test the default MOQ=2 scenario where no CSJ value is set (relies on CO2-CYLINDER-20LB having moq_configured=2 implicitly)."
+      },
+      {
+        "name": "coverage_delta",
+        "score": 92,
+        "weight": 0.15,
+        "notes": "Adds boundary-value coverage (qty=MOQ, qty<MOQ) and a CSJ override path. Three distinct test methods means CI failures are attributable to a specific MOQ scenario."
+      },
+      {
+        "name": "assertion_quality",
+        "score": 88,
+        "weight": 0.25,
+        "notes": "assertGreaterThanOrEqual(400) + assertLessThan(500) is precise for HTTP range. assertNotEmpty($body['message']) is good but could be strengthened with assertStringContainsString to verify the message mentions MOQ or minimum quantity. testOrderAtMoqThresholdIsAccepted correctly asserts assertIsInt + assertGreaterThan(0)."
+      },
+      {
+        "name": "determinism",
+        "score": 90,
+        "weight": 0.15,
+        "notes": "clearCart() in each test prevents cart state leakage. No random values. N2-MOQ1-CYLINDER SKU dependency should be documented in test fixtures README so environment setup is reproducible."
+      }
+    ],
+    "composite": 92.55,
+    "gate_decision": "PASS"
+  },
+  "validation": {
+    "ran_against_current": true,
+    "mutation_caught": true,
+    "flake_signals": [],
+    "_demo_synthetic": true
+  },
+  "commit_metadata": {
+    "pr_number": 1,
+    "signing_status": "signed",
+    "branch": "sentinel/bootstrap-generated-tests",
+    "timestamp": "2026-05-05T18:30:00Z",
+    "_demo_synthetic": true
+  },
+  "steering_signals_applied": [
+    {
+      "rule_id": "RULE-002",
+      "rule_text": "Prefer assertSame over assertEquals for HTTP status code assertions (strict type safety).",
+      "set_on": "2026-05-01T09:00:00Z",
+      "set_by": "natasha.agarwal@company.com",
+      "_demo_synthetic": true
+    },
+    {
+      "rule_id": "RULE-005",
+      "rule_text": "Use assertStringContainsString for error message assertions, never assertContains on strings.",
+      "set_on": "2026-05-04T08:45:00Z",
+      "set_by": "natasha.agarwal@company.com",
+      "_demo_synthetic": true
+    }
+  ]
+}

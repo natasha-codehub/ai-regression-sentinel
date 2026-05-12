@@ -1,0 +1,202 @@
+{
+  "test_id": "GEN-003",
+  "source_intents": [
+    {
+      "id": "TI-003",
+      "source_row": 4,
+      "feature_area": "checkout",
+      "action_description": "Log in as a Primary User with no NAV ID assigned, place an order, and inspect the order confirmation screen and Salesforce Case Queue",
+      "expected_behavior": "Order confirmation screen is displayed; a new Salesforce case is created and visible in the SF Case Queue; NAV order entry is created for the order",
+      "preconditions": [
+        "User is a Primary user",
+        "IOS case has been submitted",
+        "Payment Status = Approved",
+        "No NAV ID assigned to the user"
+      ],
+      "test_data_hints": [
+        "Primary user account with no NAV ID",
+        "IOS SF Case in submitted state",
+        "Payment Status = Approved in Salesforce"
+      ],
+      "original_text": "CF-03 | Immediate Checkout After Onboarding | Sanity | NAV ORDER ENTRY & SF Case Creation | User is a Primary, has submitted IOS case, Payment Status = Approved, no NAV assigned | 1. Login as Primary User without NAV. 2. Place an order. 3. Check confirmation screen and SF Case Queue."
+    }
+  ],
+  "source_observations": [
+    {
+      "id": "OBS-008",
+      "timestamp": "2025-04-10T09:18:52Z",
+      "session_id": "sess_demo_001",
+      "summary": "Place order with qty=1 (below MOQ=2) — order ACCEPTED, MOQ check did not fire",
+      "endpoint": "POST /rest/V1/carts/mine/payment-information",
+      "request": {
+        "method": "POST",
+        "body": {
+          "paymentMethod": {
+            "method": "stripe_cc",
+            "additional_data": {
+              "cc_last4": "4242"
+            }
+          },
+          "email": "primary.user@esprigas.com"
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "order_id": 50291,
+          "order_increment_id": "100050291",
+          "status": "pending",
+          "items_ordered": [
+            {
+              "sku": "CO2-CYLINDER-20LB",
+              "qty_ordered": 1
+            }
+          ],
+          "moq_enforced": false,
+          "moq_rejection_reason": null
+        }
+      },
+      "context": {
+        "user_type": "primary",
+        "moq_configured": 2,
+        "qty_submitted": 1
+      }
+    },
+    {
+      "id": "OBS-009",
+      "timestamp": "2025-04-10T09:19:03Z",
+      "session_id": "sess_demo_001",
+      "summary": "Get order details after placement — order created, SF case ID is null (not created)",
+      "endpoint": "GET /rest/V1/orders/50291",
+      "request": {
+        "method": "GET"
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "entity_id": 50291,
+          "increment_id": "100050291",
+          "status": "pending",
+          "customer_email": "primary.user@esprigas.com",
+          "nav_order_id": "NAV-ORD-50291",
+          "sf_case_id": null,
+          "sf_case_creation_status": "failed",
+          "sf_case_error": "Salesforce API timeout — case not created",
+          "print_receipt_url": "/sales/order/print/order_id/50291"
+        }
+      },
+      "context": {
+        "user_type": "primary",
+        "nav_id": null
+      }
+    }
+  ],
+  "reconciliation": {
+    "id": "REC-003",
+    "intent_id": "TI-003",
+    "matched_observations": [
+      "OBS-008",
+      "OBS-009"
+    ],
+    "decision": "behavior_regressed",
+    "confidence": 0.96,
+    "reasoning": "OBS-009 shows the order confirmation response contains sf_case_id=null and sf_case_creation_status=failed with an explicit Salesforce API timeout error. The intent states a Salesforce case MUST appear in the SF Case Queue after order placement. The NAV order entry was created (nav_order_id present) but the SF case integration is broken. This is a regression, not an intentional design change.",
+    "final_expected_behavior": "REGRESSION DETECTED: After order placement, sf_case_id must be non-null and a case must appear in the Salesforce Case Queue. The observed system returned sf_case_id=null with sf_case_creation_status=failed. The generated test must assert that POST /rest/V1/carts/mine/payment-information followed by GET /rest/V1/orders/{id} returns a non-null sf_case_id and sf_case_creation_status=created."
+  },
+  "classification": {
+    "level": "api",
+    "reasoning": "Regression in an external integration (Salesforce API). API-level test is the right layer — it can assert on the sf_case_id field in the order response without requiring Salesforce sandbox access.",
+    "alternatives_considered": [
+      {
+        "level": "unit",
+        "reason_rejected": "Salesforce integration is a side effect of order placement — unit tests cannot assert on the SF case creation without mocking the entire Salesforce client.",
+        "_demo_synthetic": true
+      },
+      {
+        "level": "contract",
+        "reason_rejected": "Contract testing requires a Salesforce sandbox provider; out of scope for the current demo.",
+        "_demo_synthetic": true
+      }
+    ]
+  },
+  "generation": {
+    "prompt_template": "prompts/03_generation.md",
+    "model": "claude-sonnet-4-6",
+    "tokens_in": 3421,
+    "tokens_out": 764,
+    "latency_ms": 5830,
+    "attempt_number": 1,
+    "alternatives_rejected": [],
+    "_synthetic_fields": [
+      "tokens_in",
+      "tokens_out",
+      "latency_ms",
+      "attempt_number",
+      "alternatives_rejected"
+    ]
+  },
+  "eval": {
+    "dimensions": [
+      {
+        "name": "syntactic_validity",
+        "score": 100,
+        "weight": 0.1,
+        "notes": "Syntactically valid. Correct class structure and Guzzle usage."
+      },
+      {
+        "name": "behavior_fidelity",
+        "score": 88,
+        "weight": 0.35,
+        "notes": "Correctly targets the regression: testOrderPlacementCreatesSalesforceCase asserts sf_case_id is not null, which directly probes the broken integration identified in REC-003. testOrderPlacementCreatesNavEntry adds a second axis. Missing: does not assert sf_case_creation_status = 'created', leaving the door open for a future bug where sf_case_id is populated with a stale value."
+      },
+      {
+        "name": "coverage_delta",
+        "score": 85,
+        "weight": 0.15,
+        "notes": "High-value regression coverage. Both SF case and NAV order assertions together cover the full expected post-order state. No existing tests cover this integration path."
+      },
+      {
+        "name": "assertion_quality",
+        "score": 60,
+        "weight": 0.25,
+        "notes": "assertNotNull(sf_case_id) is necessary but insufficient — does not assert that sf_case_creation_status='created'. Does not assert the SF case number format or that it is retrievable. testOrderPlacementCreatesNavEntry uses assertNotEmpty which is weaker than assertMatchesRegularExpression for a known NAV ID pattern like NAV-ORD-\\d+."
+      },
+      {
+        "name": "determinism",
+        "score": 88,
+        "weight": 0.15,
+        "notes": "No randomness. Auth uses env vars. Small risk: test depends on the Salesforce integration being reachable — if SF is down, the test result is ambiguous (regression vs infrastructure failure). Consider asserting on sf_case_creation_status to distinguish these cases."
+      }
+    ],
+    "composite": 81.75,
+    "gate_decision": "WARN"
+  },
+  "validation": {
+    "ran_against_current": true,
+    "mutation_caught": true,
+    "flake_signals": [
+      {
+        "type": "external_dependency",
+        "detail": "Salesforce API returned a 503 timeout in 1 of 3 test runs — test is a flaky candidate when SF is under load.",
+        "_demo_synthetic": true
+      }
+    ],
+    "_demo_synthetic": true
+  },
+  "commit_metadata": {
+    "pr_number": 1,
+    "signing_status": "signed",
+    "branch": "sentinel/bootstrap-generated-tests",
+    "timestamp": "2026-05-05T18:30:00Z",
+    "_demo_synthetic": true
+  },
+  "steering_signals_applied": [
+    {
+      "rule_id": "RULE-001",
+      "rule_text": "Always cite source file and line number in test method docblock for traceability.",
+      "set_on": "2026-05-01T09:00:00Z",
+      "set_by": "natasha.agarwal@company.com",
+      "_demo_synthetic": true
+    }
+  ]
+}

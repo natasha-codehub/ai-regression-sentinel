@@ -1,0 +1,33 @@
+{
+  "generated_at": "2026-05-05T08:41:47.290372+00:00",
+  "files": [
+    "01_test_intents.json",
+    "02_reconciliation.json",
+    "03_generation.json",
+    "04_eval_scores.json",
+    "05_change_impact.json",
+    "06_change_summary.json",
+    "06_eval_scores.json",
+    "test_to_code_map.json",
+    "06_pr_comment.md",
+    "traces/GEN-001_trace.json",
+    "traces/GEN-003_trace.json",
+    "traces/GEN-009_trace.json",
+    "traces/GEN-010_trace.json",
+    "traces/GEN-013_trace.json",
+    "generated_tests/AdminOtpResendTest.php",
+    "generated_tests/MoqEnforcementTest.php",
+    "generated_tests/OnboardingProcessTest.php",
+    "generated_tests/PaymentMethodDeletionTest.php",
+    "generated_tests/SfCaseCreationTest.php",
+    "06_updated_tests/OnboardingProcessTest.php",
+    "06_updated_tests/PaymentMethodDeletionTest.php"
+  ],
+  "traces": [
+    "traces/GEN-001_trace.json",
+    "traces/GEN-003_trace.json",
+    "traces/GEN-009_trace.json",
+    "traces/GEN-010_trace.json",
+    "traces/GEN-013_trace.json"
+  ]
+}

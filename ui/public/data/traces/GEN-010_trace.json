@@ -1,0 +1,264 @@
+{
+  "test_id": "GEN-010",
+  "source_intents": [
+    {
+      "id": "TI-010",
+      "source_row": 11,
+      "feature_area": "checkout",
+      "action_description": "Navigate to the checkout page from the Minicart and validate delivery address, shipping policy link, all delivery methods, payment options, order summary quantity rules, promo code application, and order submission to NAV",
+      "expected_behavior": "Delivery address shows the complete location address; Shipping Policy link opens the correct message; at least two delivery methods (Standard, Rush, Will Call) display as radio buttons; Standard Delivery shows expected date; Rush Delivery shows 2-day date; Will Call is visible only for eligible Industrial and Heartland/CO2 customers; Will Call selection sets delivery charge to 0; payment auto-selects when only one option exists; order summary shows correct product details with quantity constraints; promo code applies discount; overused promo shows error 'Sorry, this coupon has already been redeemed the maximum number of times at this location'; order is submitted to NAV and redirects to the order confirmation page",
+      "preconditions": [
+        "User is logged in",
+        "User has at least one product in the cart",
+        "User navigates to Checkout page from Minicart"
+      ],
+      "test_data_hints": [
+        "Location with Standard, Rush, and Will Call delivery methods configured",
+        "Heartland group customer with Will Call enabled",
+        "Customer account with a payment card on file",
+        "Customer account with no payment card on file",
+        "Valid promo code",
+        "Promo code that has exceeded its redemption limit",
+        "Bev Stripe payment method account",
+        "Industrial customer for Will Call eligibility",
+        "Buying Group = Heartland for pick-up quantity warning test"
+      ],
+      "original_text": "CF-10 | Checkout Page | Smoke | Verify Complete Checkout Page Functionality | User is logged in. User has at least one product in the cart. User navigates to Checkout page from Minicart | Navigate to Shopping Cart from Minicart; verify Delivery Address; verify Shipping Policy link; verify delivery methods; verify payment options; verify order summary; apply promo codes; submit order and verify NAV entry and confirmation redirect."
+    }
+  ],
+  "source_observations": [
+    {
+      "id": "OBS-005",
+      "timestamp": "2025-04-10T09:17:10Z",
+      "session_id": "sess_demo_001",
+      "summary": "Get available shipping methods — Standard and Rush only; Will Call absent",
+      "endpoint": "GET /rest/V1/carts/mine/shipping-methods",
+      "request": {
+        "method": "GET"
+      },
+      "response": {
+        "status": 200,
+        "body": [
+          {
+            "carrier_code": "standard",
+            "method_code": "standard",
+            "carrier_title": "Standard Delivery",
+            "method_title": "Standard Delivery",
+            "amount": 0.0,
+            "available": true,
+            "estimated_delivery": "2025-04-14"
+          },
+          {
+            "carrier_code": "rush",
+            "method_code": "rush",
+            "carrier_title": "Rush Delivery",
+            "method_title": "Rush Delivery (2 business days)",
+            "amount": 24.99,
+            "available": true,
+            "estimated_delivery": "2025-04-12"
+          }
+        ]
+      },
+      "context": {
+        "user_type": "primary",
+        "buying_group": "Heartland"
+      }
+    },
+    {
+      "id": "OBS-006",
+      "timestamp": "2025-04-10T09:17:44Z",
+      "session_id": "sess_demo_001",
+      "summary": "Set shipping information — Standard delivery selected",
+      "endpoint": "POST /rest/V1/carts/mine/shipping-information",
+      "request": {
+        "method": "POST",
+        "body": {
+          "addressInformation": {
+            "shipping_address": {
+              "firstname": "Demo",
+              "lastname": "User",
+              "street": [
+                "123 Industrial Blvd"
+              ],
+              "city": "Houston",
+              "region_code": "TX",
+              "postcode": "77001",
+              "telephone": "555-0100"
+            },
+            "shipping_carrier_code": "standard",
+            "shipping_method_code": "standard"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "payment_methods": [
+            "stripe_cc",
+            "invoice"
+          ],
+          "totals": {
+            "subtotal": 34.99,
+            "shipping_amount": 0.0,
+            "grand_total": 34.99
+          }
+        }
+      },
+      "context": {
+        "user_type": "primary"
+      }
+    },
+    {
+      "id": "OBS-007",
+      "timestamp": "2025-04-10T09:18:05Z",
+      "session_id": "sess_demo_001",
+      "summary": "Get payment methods — Stripe CC and invoice available",
+      "endpoint": "GET /rest/V1/carts/mine/payment-methods",
+      "request": {
+        "method": "GET"
+      },
+      "response": {
+        "status": 200,
+        "body": [
+          {
+            "code": "stripe_cc",
+            "title": "Credit / Debit Card (Stripe)"
+          },
+          {
+            "code": "invoice",
+            "title": "Net 30 Invoice"
+          }
+        ]
+      },
+      "context": {
+        "user_type": "primary"
+      }
+    },
+    {
+      "id": "OBS-011",
+      "timestamp": "2025-04-10T09:23:40Z",
+      "session_id": "sess_demo_002",
+      "summary": "Apply promo code — returns error for overused coupon",
+      "endpoint": "PUT /rest/V1/carts/mine/coupons/SAVE10OFF",
+      "request": {
+        "method": "PUT"
+      },
+      "response": {
+        "status": 400,
+        "body": {
+          "message": "Sorry, this coupon has already been redeemed the maximum number of times at this location",
+          "code": "COUPON_EXCEEDED_REDEMPTIONS"
+        }
+      },
+      "context": {
+        "user_type": "primary",
+        "coupon_code": "SAVE10OFF"
+      }
+    }
+  ],
+  "reconciliation": {
+    "id": "REC-010",
+    "intent_id": "TI-010",
+    "matched_observations": [
+      "OBS-005",
+      "OBS-006",
+      "OBS-007",
+      "OBS-011"
+    ],
+    "decision": "agree",
+    "confidence": 0.83,
+    "reasoning": "OBS-005 confirms Standard and Rush delivery methods are returned with correct fields (carrier_code, amount, estimated_delivery). OBS-006 confirms shipping information can be set and payment methods are returned in response. OBS-007 confirms two payment methods are available. OBS-011 confirms the overused promo code error message matches the spec exactly. Will Call absence in OBS-005 is noted but may be session-specific.",
+    "final_expected_behavior": "Delivery address shows the complete location address; Standard and Rush delivery methods display as radio buttons with correct dates; payment options are available with auto-select when only one exists; promo code discounts are applied; overused promo shows error 'Sorry, this coupon has already been redeemed the maximum number of times at this location'; order is submitted to NAV and redirects to the confirmation page"
+  },
+  "classification": {
+    "level": "api",
+    "reasoning": "Payment method management is exposed via the Stripe Payments controller. API-level test covers the delete-with-open-order guard (PaymentMethods.php line 70-76) which has a specific, testable error message.",
+    "alternatives_considered": [
+      {
+        "level": "unit",
+        "reason_rejected": "PaymentMethods::delete interacts with customerSession, helper, and Stripe SDK — full mocking graph is too large to be maintainable.",
+        "_demo_synthetic": true
+      },
+      {
+        "level": "e2e",
+        "reason_rejected": "Stripe payment method management requires a Stripe test-mode browser session; not available in stub environment.",
+        "_demo_synthetic": true
+      }
+    ]
+  },
+  "generation": {
+    "prompt_template": "prompts/03_generation.md",
+    "model": "claude-sonnet-4-6",
+    "tokens_in": 3692,
+    "tokens_out": 847,
+    "latency_ms": 6480,
+    "attempt_number": 1,
+    "alternatives_rejected": [],
+    "_synthetic_fields": [
+      "tokens_in",
+      "tokens_out",
+      "latency_ms",
+      "attempt_number",
+      "alternatives_rejected"
+    ]
+  },
+  "eval": {
+    "dimensions": [
+      {
+        "name": "syntactic_validity",
+        "score": 100,
+        "weight": 0.1,
+        "notes": "Syntactically valid. markTestSkipped usage is correct."
+      },
+      {
+        "name": "behavior_fidelity",
+        "score": 78,
+        "weight": 0.35,
+        "notes": "testPaymentMethodsListReturnsAvailableMethods and testSinglePaymentMethodIsAutoSelected cover the payment methods section of the checkout page. However, testCannotDeletePaymentMethodWithOpenOrder does not actually assert the specific error message from PaymentMethods.php line 74: 'Sorry, it is not possible to delete this payment method because order #%1 which was placed using it is still being processed.' The test only checks the HTTP status code."
+      },
+      {
+        "name": "coverage_delta",
+        "score": 75,
+        "weight": 0.15,
+        "notes": "Covers the payment methods list and delete-with-open-order guard. Missing: fingerprint parameter path (PaymentMethods.php line 50), the Stripe CardException handler (line 93-96), and the outcome() redirect flow (line 57-63)."
+      },
+      {
+        "name": "assertion_quality",
+        "score": 72,
+        "weight": 0.25,
+        "notes": "assertContains(['code'], $methods[0]) is good. The delete test only asserts assertContains($status, [200, 302]) which is too broad — 200 and 302 are very different outcomes. Should assert the Location header on 302 and check for the error message text in the response body."
+      },
+      {
+        "name": "determinism",
+        "score": 82,
+        "weight": 0.15,
+        "notes": "No random values. TEST_CARD_TOKEN_WITH_OPEN_ORDER env var dependency is correctly handled with a fallback value. markTestSkipped for single-method scenario is correct practice."
+      }
+    ],
+    "composite": 78.85,
+    "gate_decision": "WARN"
+  },
+  "validation": {
+    "ran_against_current": true,
+    "mutation_caught": false,
+    "mutation_notes": "A mutation inverting the status check (>= 200 to != 200) was not caught because testCannotDeletePaymentMethodWithOpenOrder uses assertContains([200, 302]) — too wide a range to catch the mutation.",
+    "flake_signals": [],
+    "_demo_synthetic": true
+  },
+  "commit_metadata": {
+    "pr_number": 1,
+    "signing_status": "signed",
+    "branch": "sentinel/bootstrap-generated-tests",
+    "timestamp": "2026-05-05T18:30:00Z",
+    "_demo_synthetic": true
+  },
+  "steering_signals_applied": [
+    {
+      "rule_id": "RULE-004",
+      "rule_text": "All auth tokens must be fetched in setUp(), never inline inside individual test methods.",
+      "set_on": "2026-05-03T11:15:00Z",
+      "set_by": "natasha.agarwal@company.com",
+      "_demo_synthetic": true
+    }
+  ]
+}

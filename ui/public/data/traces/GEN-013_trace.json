@@ -1,0 +1,154 @@
+{
+  "test_id": "GEN-013",
+  "source_intents": [
+    {
+      "id": "TI-013",
+      "source_row": 14,
+      "feature_area": "admin",
+      "action_description": "Navigate the My User tab as a Primary user: inspect the user listing, attempt New User creation under three account setup states, edit an existing user, and toggle a sub-user between active and inactive",
+      "expected_behavior": "Only Primary users with Company Status = Approved can access the My User tab; users without the Primary role or with Company Status not Approved cannot access it; user listing displays correct details; New User creation shows appropriate errors for accounts missing a Salesforce Account ID and for partially activated accounts; New User succeeds for fully activated accounts; Edit, Inactivate, and Activate actions complete without errors",
+      "preconditions": [
+        "Primary User is logged in",
+        "Company Status = Approved for the primary test scenario"
+      ],
+      "test_data_hints": [
+        "Primary user with Company Status = Approved",
+        "User account without the Primary role",
+        "User account with Company Status not equal to Approved",
+        "Account missing Salesforce Account ID",
+        "Partially activated account",
+        "Fully activated and properly set up account",
+        "Active sub-user for inactivation test",
+        "Inactive sub-user for activation test"
+      ],
+      "original_text": "CF-13 | My User Tab | Smoke | To validate the visibility, access permissions, and core functionalities of the My User tab including user listing, new user creation, editing, activation/inactivation, and related warnings or messages | Primary User is logged in | Log in as Primary User with Company = Approved; log in as user without Primary role; verify user listing; click New User with improperly setup account; click New User with partially activated account; click New User with fully activated account; click Edit; click Inactivate; confirm inactivation; click Activate."
+    }
+  ],
+  "source_observations": [],
+  "reconciliation": {
+    "id": "REC-013",
+    "intent_id": "TI-013",
+    "matched_observations": [],
+    "decision": "no_observation",
+    "confidence": 0.9,
+    "reasoning": "My User tab is an admin UI feature with no REST API calls captured in the observation set. User management operations are not covered by the checkout session observations.",
+    "final_expected_behavior": "Only Primary users with Company Status = Approved can access the My User tab; user listing displays correct details; New User creation shows appropriate errors for incomplete accounts and succeeds for fully activated accounts; Edit, Inactivate, and Activate actions complete without errors"
+  },
+  "classification": {
+    "level": "api",
+    "reasoning": "Admin OTP resend is a controller with session-based auth. API-level test can hit the endpoint and verify redirect behavior. Note: non-determinism flag raised — Resend.php uses rand() for OTP generation.",
+    "alternatives_considered": [
+      {
+        "level": "unit",
+        "reason_rejected": "Resend.php uses rand() and date() — unit tests cannot assert on OTP value or expiry without injecting a clock and seeding rand, which would require refactoring the production code.",
+        "_demo_synthetic": true
+      },
+      {
+        "level": "e2e",
+        "reason_rejected": "OTP resend requires email interception (mailhog/mailtrap) not available in stub environment.",
+        "_demo_synthetic": true
+      }
+    ]
+  },
+  "generation": {
+    "prompt_template": "prompts/03_generation.md",
+    "model": "claude-sonnet-4-6",
+    "tokens_in": 3284,
+    "tokens_out": 721,
+    "latency_ms": 5490,
+    "attempt_number": 1,
+    "alternatives_rejected": [
+      {
+        "draft_summary": "Initial draft hardcoded the OTP resend base URL instead of using the MAGENTO_BASE_URL env var.",
+        "reason_rejected": "Violates RULE-005 (env var only for all base URLs); rejected and regenerated with Guzzle Client base_uri pattern.",
+        "_demo_synthetic": true
+      }
+    ],
+    "_synthetic_fields": [
+      "tokens_in",
+      "tokens_out",
+      "latency_ms",
+      "attempt_number",
+      "alternatives_rejected"
+    ]
+  },
+  "eval": {
+    "dimensions": [
+      {
+        "name": "syntactic_validity",
+        "score": 100,
+        "weight": 0.1,
+        "notes": "Syntactically valid PHP. markTestSkipped used correctly."
+      },
+      {
+        "name": "behavior_fidelity",
+        "score": 72,
+        "weight": 0.35,
+        "notes": "The reconciliation (REC-013, no_observation) requires verifying Primary user access control for the My User tab. This test instead targets the AdminOTP Resend controller — there is a domain mismatch. The redirect assertions probe authentication scaffolding rather than the user management behavior described in the intent."
+      },
+      {
+        "name": "coverage_delta",
+        "score": 55,
+        "weight": 0.15,
+        "notes": "The session-expiry redirect paths (Resend.php lines 35-47) are covered, which has some value. But the My User tab access control, user listing, and New User creation flows — the core of TI-013 — are not covered at all."
+      },
+      {
+        "name": "assertion_quality",
+        "score": 45,
+        "weight": 0.25,
+        "notes": "testResendWithValidSessionReturnsSuccess asserts assertSame(302) and assertStringContainsString on the Location header, which is the strongest assertion in the file. The other two methods only assert status code ranges without verifying response body content or redirect destinations. No assertions on OTP email dispatch, OTP record update, or expiry time."
+      },
+      {
+        "name": "determinism",
+        "score": 35,
+        "weight": 0.15,
+        "notes": "Critical: Resend.php line 56 uses rand(100000, 999999) and line 57 uses date() with time() for the 3-minute expiry. Any test that attempts to assert the OTP value or expiry timestamp will be non-deterministic. The current test avoids this by not asserting OTP content, but the underlying controller cannot be fully tested deterministically without injecting a clock or seeding the random generator."
+      }
+    ],
+    "composite": 59.95,
+    "gate_decision": "REVIEW"
+  },
+  "validation": {
+    "ran_against_current": false,
+    "ran_against_current_notes": "Stub server does not implement the OTP resend endpoint — test skipped during validation run.",
+    "mutation_caught": null,
+    "flake_signals": [
+      {
+        "type": "non_determinism",
+        "detail": "Resend.php line 56 uses rand(100000, 999999) — any test asserting OTP value will be non-deterministic. Current test avoids this by not asserting OTP content.",
+        "_demo_synthetic": true
+      }
+    ],
+    "_demo_synthetic": true
+  },
+  "commit_metadata": {
+    "pr_number": 1,
+    "signing_status": "signed",
+    "branch": "sentinel/bootstrap-generated-tests",
+    "timestamp": "2026-05-05T18:30:00Z",
+    "_demo_synthetic": true
+  },
+  "steering_signals_applied": [
+    {
+      "rule_id": "RULE-001",
+      "rule_text": "Always cite source file and line number in test method docblock for traceability.",
+      "set_on": "2026-05-01T09:00:00Z",
+      "set_by": "natasha.agarwal@company.com",
+      "_demo_synthetic": true
+    },
+    {
+      "rule_id": "RULE-003",
+      "rule_text": "Flag tests with non-deterministic helpers (rand, time, uniqid) in eval notes; gate at WARN minimum.",
+      "set_on": "2026-05-02T14:30:00Z",
+      "set_by": "natasha.agarwal@company.com",
+      "_demo_synthetic": true
+    },
+    {
+      "rule_id": "RULE-004",
+      "rule_text": "All auth tokens must be fetched in setUp(), never inline inside individual test methods.",
+      "set_on": "2026-05-03T11:15:00Z",
+      "set_by": "natasha.agarwal@company.com",
+      "_demo_synthetic": true
+    }
+  ]
+}

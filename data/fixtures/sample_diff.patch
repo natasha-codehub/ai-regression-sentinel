@@ -1,0 +1,29 @@
+diff --git a/app/code/StripeIntegration/Payments/Controller/Customer/PaymentMethods.php b/app/code/StripeIntegration/Payments/Controller/Customer/PaymentMethods.php
+index 3a4b2c1..9f8e7d2 100644
+--- a/app/code/StripeIntegration/Payments/Controller/Customer/PaymentMethods.php
++++ b/app/code/StripeIntegration/Payments/Controller/Customer/PaymentMethods.php
+@@ -67,7 +67,8 @@ public function delete($token, $fingerprint = null)
+         try
+         {
+             $customerId = $this->customerSession->getCustomer()->getId();
+-            $statuses = ['processing', 'fraud', 'pending_payment', 'payment_review', 'pending', 'holded'];
++            $statuses = ['processing', 'fraud', 'pending_payment', 'payment_review', 'pending', 'holded', 'complete'];
++            $token = trim($token);
+             $orders = $this->helper->getCustomerOrders($customerId, $statuses, $token);
+             foreach ($orders as $order)
+             {
+diff --git a/app/code/Venture7/BusinessAccount/Controller/Index/Save.php b/app/code/Venture7/BusinessAccount/Controller/Index/Save.php
+index 1b2c3d4..5e6f7a8 100644
+--- a/app/code/Venture7/BusinessAccount/Controller/Index/Save.php
++++ b/app/code/Venture7/BusinessAccount/Controller/Index/Save.php
+@@ -70,6 +70,10 @@ public function execute()
+         $result = $this->jsonResultFactory->create();
+
+         if (!$this->formKeyValidator->validate($this->getRequest())) {
++            $this->logger->warning('BusinessAccount Save: invalid form key', [
++                'customer_id' => $this->session->getCustomerId(),
++                'ip'          => $this->getRequest()->getClientIp(),
++            ]);
+             return $result->setData(['success' => false, 'message' => 'Invalid form key']);
+         }
+

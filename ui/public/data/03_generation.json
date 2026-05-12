@@ -1,0 +1,57 @@
+[
+  {
+    "id": "GEN-001",
+    "rec_id": "REC-001",
+    "intent_id": "TI-001",
+    "decision": "agree",
+    "level": "api",
+    "file": "generated_tests/OnboardingProcessTest.php",
+    "class": "OnboardingProcessTest",
+    "source_files": ["target_code/Save.php"],
+    "router_rationale": "Behavior spans an HTTP POST controller that returns JSON — API level is the right fit. Unit testing OnboardingProcess::execute() would require mocking the entire Magento DI graph. E2E would be too brittle for this smoke check."
+  },
+  {
+    "id": "GEN-003",
+    "rec_id": "REC-003",
+    "intent_id": "TI-003",
+    "decision": "behavior_regressed",
+    "level": "api",
+    "file": "generated_tests/SfCaseCreationTest.php",
+    "class": "SfCaseCreationTest",
+    "source_files": ["target_code/Save.php"],
+    "router_rationale": "Regression in an external integration (Salesforce API). API-level test is the right layer — it can assert on the sf_case_id field in the order response without requiring Salesforce sandbox access."
+  },
+  {
+    "id": "GEN-009",
+    "rec_id": "REC-009",
+    "intent_id": "TI-009",
+    "decision": "behavior_regressed",
+    "level": "api",
+    "file": "generated_tests/MoqEnforcementTest.php",
+    "class": "MoqEnforcementTest",
+    "source_files": [],
+    "router_rationale": "MOQ enforcement is implemented in the checkout REST API pipeline. API-level tests can directly probe the rejection behavior by submitting orders with varying quantities and asserting HTTP status codes."
+  },
+  {
+    "id": "GEN-010",
+    "rec_id": "REC-010",
+    "intent_id": "TI-010",
+    "decision": "agree",
+    "level": "api",
+    "file": "generated_tests/PaymentMethodDeletionTest.php",
+    "class": "PaymentMethodDeletionTest",
+    "source_files": ["target_code/PaymentMethods.php"],
+    "router_rationale": "Payment method management is exposed via the Stripe Payments controller. API-level test covers the delete-with-open-order guard (PaymentMethods.php line 70-76) which has a specific, testable error message."
+  },
+  {
+    "id": "GEN-013",
+    "rec_id": "REC-013",
+    "intent_id": "TI-013",
+    "decision": "no_observation",
+    "level": "api",
+    "file": "generated_tests/AdminOtpResendTest.php",
+    "class": "AdminOtpResendTest",
+    "source_files": ["target_code/Resend.php"],
+    "router_rationale": "Admin OTP resend is a controller with session-based auth. API-level test can hit the endpoint and verify redirect behavior. Note: non-determinism flag raised — Resend.php uses rand() for OTP generation."
+  }
+]
