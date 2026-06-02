@@ -39,7 +39,11 @@ function RunBanner({
   )
 }
 
-export default function BootstrapPanel() {
+interface Props {
+  onNavigateTrace: (testId: string) => void
+}
+
+export default function BootstrapPanel({ onNavigateTrace }: Props) {
   const { intents, reconciliations, generations, evalScores, observations, loading } =
     useBootstrapData()
 
@@ -62,7 +66,7 @@ export default function BootstrapPanel() {
         <TestsTable
           generations={generations}
           evalScores={evalScores}
-          onExpand={(id) => console.log('expand', id)}
+          onExpand={onNavigateTrace}
         />
       </div>
     </div>
