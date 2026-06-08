@@ -15,13 +15,13 @@
 
   body {
     font-family: 'Inter', system-ui, sans-serif;
-    background-color: #020617; /* slate-950 */
-    color: #f1f5f9; /* slate-100 */
+    background-color: #0B1020;
+    color: #F8FAFC;
   }
 
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
 
   ::-webkit-scrollbar-track {
@@ -29,11 +29,11 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #334155; /* slate-700 */
-    border-radius: 3px;
+    background: #24324A;
+    border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #475569; /* slate-600 */
+    background: #344563;
   }
 }

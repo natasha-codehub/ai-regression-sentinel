@@ -19,15 +19,15 @@ function CodeSymbolNode({ data }: NodeProps) {
   return (
     <div
       style={{ width: 130, height: 72 }}
-      className="flex flex-col items-center justify-center rounded-full border-2 border-orange-400/70 bg-orange-500/15 text-center px-2"
+      className="flex flex-col items-center justify-center rounded-xl border-2 border-[#F59E0B]/50 bg-[#F59E0B]/10 text-center px-2"
     >
       <Handle
         type="source"
         position={Position.Right}
-        style={{ background: '#fb923c', border: '2px solid #c2410c', width: 8, height: 8 }}
+        style={{ background: '#F59E0B', border: '2px solid #d97706', width: 8, height: 8 }}
       />
-      <span className="text-[11px] font-bold text-orange-300 leading-tight">{name}()</span>
-      <span className="text-[9px] text-orange-400/60 mt-0.5 leading-tight px-2 truncate max-w-full">
+      <span className="text-[11px] font-bold text-[#F59E0B] leading-tight">{name}()</span>
+      <span className="text-[9px] text-[#F59E0B]/60 mt-0.5 leading-tight px-2 truncate max-w-full">
         {file}
       </span>
     </div>
@@ -39,15 +39,15 @@ function TestNode({ data }: NodeProps) {
   return (
     <div
       style={{ width: 160, height: 56 }}
-      className="flex flex-col items-center justify-center rounded border-2 border-blue-400/70 bg-blue-600/15 text-center px-2"
+      className="flex flex-col items-center justify-center rounded-xl border-2 border-[#3B82F6]/50 bg-[#3B82F6]/10 text-center px-2"
     >
       <Handle
         type="target"
         position={Position.Left}
-        style={{ background: '#60a5fa', border: '2px solid #1d4ed8', width: 8, height: 8 }}
+        style={{ background: '#60A5FA', border: '2px solid #2563eb', width: 8, height: 8 }}
       />
-      <span className="text-[10px] font-bold text-blue-300 leading-tight">{testId}</span>
-      <span className="text-[9px] text-blue-400/60 mt-0.5 leading-tight px-1 truncate max-w-full">
+      <span className="text-[10px] font-bold text-[#60A5FA] leading-tight">{testId}</span>
+      <span className="text-[9px] text-[#60A5FA]/60 mt-0.5 leading-tight px-1 truncate max-w-full">
         {filename}
       </span>
     </div>
@@ -108,7 +108,6 @@ function buildGraph(
       }
     }
 
-    // fallback: connect to all tests if no keyword match
     if (!matched) {
       for (let ti = 0; ti < tests.length; ti++) {
         const id = `e-${si}-${ti}`
@@ -129,8 +128,8 @@ function makeEdge(id: string, source: string, target: string): Edge {
     source,
     target,
     animated: true,
-    markerEnd: { type: MarkerType.ArrowClosed, color: '#64748b', width: 16, height: 16 },
-    style: { stroke: '#475569', strokeWidth: 1.5 },
+    markerEnd: { type: MarkerType.ArrowClosed, color: '#475569', width: 16, height: 16 },
+    style: { stroke: '#344563', strokeWidth: 1.5 },
   }
 }
 
@@ -139,8 +138,8 @@ function makeEdge(id: string, source: string, target: string): Edge {
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center h-full gap-3 text-center px-6">
-      <span className="text-slate-500 text-sm">No impact data found</span>
-      <code className="text-xs text-slate-600 font-mono bg-slate-800 px-3 py-1.5 rounded">
+      <span className="text-sm text-[#64748B]">No impact data found</span>
+      <code className="text-xs text-[#64748B] font-mono bg-[#151E30] border border-[#24324A] px-3 py-1.5 rounded-lg">
         Run scripts/run_steady_state.py to generate this
       </code>
     </div>
@@ -163,17 +162,14 @@ export default function ImpactGraph({ impact }: Props) {
   )
 
   return (
-    <div className="flex flex-col h-full rounded-lg border border-slate-700 border-t-2 border-t-violet-500 bg-zinc-900 overflow-hidden">
-      {/* Header */}
-      <div className="px-4 py-2.5 border-b border-slate-700 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-slate-200">
-            Impact Graph
-          </span>
+    <div className="flex flex-col h-full rounded-xl border border-[#24324A] bg-[#121827] overflow-hidden">
+      <div className="px-4 py-3 border-b border-[#24324A] flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-2.5">
+          <span className="text-sm font-semibold text-[#F8FAFC]">Impact graph</span>
           {impact && (
             <>
-              <span className="text-slate-600 text-xs">·</span>
-              <span className="text-xs text-slate-400">
+              <span className="text-[#24324A] text-sm">·</span>
+              <span className="text-xs text-[#64748B]">
                 {impact.changed_symbols.length} symbol
                 {impact.changed_symbols.length !== 1 ? 's' : ''} →{' '}
                 {impact.affected_tests.length} test
@@ -182,20 +178,18 @@ export default function ImpactGraph({ impact }: Props) {
             </>
           )}
         </div>
-        {/* Legend */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-orange-500/20 border border-orange-400/70" />
-            <span className="text-xs text-slate-400">Code</span>
+            <div className="w-3 h-3 rounded-full bg-[#F59E0B]/20 border border-[#F59E0B]/50" />
+            <span className="text-xs text-[#64748B]">Code</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-2.5 rounded-sm bg-blue-600/20 border border-blue-400/70" />
-            <span className="text-xs text-slate-400">Test</span>
+            <div className="w-3.5 h-2.5 rounded-sm bg-[#3B82F6]/20 border border-[#3B82F6]/50" />
+            <span className="text-xs text-[#64748B]">Test</span>
           </div>
         </div>
       </div>
 
-      {/* Graph canvas */}
       <div className="flex-1 relative">
         {!impact ? (
           <EmptyState />
@@ -212,9 +206,9 @@ export default function ImpactGraph({ impact }: Props) {
             elementsSelectable={false}
             zoomOnScroll={false}
             panOnDrag={false}
-            style={{ background: '#0f172a' }}
+            style={{ background: '#0B1020' }}
           >
-            <Background variant={BackgroundVariant.Dots} color="#1e293b" gap={18} size={1} />
+            <Background variant={BackgroundVariant.Dots} color="#24324A" gap={18} size={1} />
           </ReactFlow>
         )}
       </div>

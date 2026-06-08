@@ -1,17 +1,20 @@
+import { FlaskConical } from 'lucide-react'
 import type { Generation, EvalScore, GateDecision } from '../../types'
 
 // ── Gate chip ─────────────────────────────────────────────────────────────────
 
 const GATE_STYLES: Record<GateDecision, string> = {
-  PASS: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50',
-  WARN: 'bg-amber-500/20 text-amber-300 border border-amber-500/50',
-  REVIEW: 'bg-orange-500/20 text-orange-300 border border-orange-500/50',
-  FAIL: 'bg-rose-500/20 text-rose-300 border border-rose-500/50',
+  PASS: 'bg-[#22C55E]/15 text-[#22C55E] border border-[#22C55E]/30',
+  WARN: 'bg-[#F59E0B]/15 text-[#F59E0B] border border-[#F59E0B]/30',
+  REVIEW: 'bg-orange-500/15 text-orange-400 border border-orange-500/30',
+  FAIL: 'bg-[#EF4444]/15 text-[#EF4444] border border-[#EF4444]/30',
 }
 
 function GateChip({ gate }: { gate: GateDecision }) {
   return (
-    <span className={`text-xs font-mono px-2 py-0.5 rounded ${GATE_STYLES[gate]}`}>{gate}</span>
+    <span className={`text-xs font-semibold px-2.5 py-1 rounded-md ${GATE_STYLES[gate]}`}>
+      {gate}
+    </span>
   )
 }
 
@@ -19,7 +22,7 @@ function GateChip({ gate }: { gate: GateDecision }) {
 
 function LevelChip({ level }: { level: string }) {
   return (
-    <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+    <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-[#3B82F6]/10 text-[#60A5FA] border border-[#3B82F6]/20">
       {level}
     </span>
   )
@@ -30,14 +33,30 @@ function LevelChip({ level }: { level: string }) {
 function ScoreBar({ composite }: { composite: number }) {
   const pct = Math.min(100, Math.max(0, composite))
   const color =
-    pct >= 85 ? 'bg-emerald-500' : pct >= 70 ? 'bg-amber-500' : pct >= 50 ? 'bg-orange-500' : 'bg-rose-500'
+    pct >= 85
+      ? 'bg-[#22C55E]'
+      : pct >= 70
+        ? 'bg-[#F59E0B]'
+        : pct >= 50
+          ? 'bg-orange-500'
+          : 'bg-[#EF4444]'
+  const textColor =
+    pct >= 85
+      ? 'text-[#22C55E]'
+      : pct >= 70
+        ? 'text-[#F59E0B]'
+        : pct >= 50
+          ? 'text-orange-400'
+          : 'text-[#EF4444]'
 
   return (
-    <div className="flex items-center gap-2">
-      <div className="w-20 h-1 bg-slate-800 rounded-full overflow-hidden">
+    <div className="flex items-center gap-2.5">
+      <div className="w-20 h-1.5 bg-[#24324A] rounded-full overflow-hidden">
         <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-xs font-mono text-slate-300 tabular-nums w-8">{pct.toFixed(1)}</span>
+      <span className={`text-xs font-semibold ${textColor} tabular-nums w-9`}>
+        {pct.toFixed(1)}
+      </span>
     </div>
   )
 }
@@ -55,28 +74,37 @@ export default function TestsTable({ generations, evalScores, onExpand }: TestsT
 
   if (generations.length === 0) {
     return (
-      <div className="border border-slate-800 rounded-lg p-5">
-        <p className="text-xs font-mono text-slate-600">No generated tests.</p>
+      <div className="rounded-xl bg-[#121827] border border-[#24324A] p-6">
+        <p className="text-sm text-[#64748B]">No generated tests.</p>
       </div>
     )
   }
 
   return (
-    <div className="border border-slate-700 border-t-2 border-t-blue-500 rounded-lg overflow-hidden">
-      <div className="px-5 py-3 border-b border-slate-700 flex items-center justify-between">
-        <h2 className="text-base font-semibold text-slate-200">
-          Generated Tests
-        </h2>
-        <span className="text-sm text-slate-400">{generations.length} tests</span>
+    <div className="rounded-xl bg-[#121827] border border-[#24324A] overflow-hidden">
+      {/* Header */}
+      <div className="px-6 py-4 border-b border-[#24324A] flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+            <FlaskConical className="w-4 h-4 text-amber-400" />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold text-[#F8FAFC]">Generated tests</h2>
+            <p className="text-xs text-[#64748B]">Gate-scored and ready to commit</p>
+          </div>
+        </div>
+        <span className="text-sm font-medium text-[#94A3B8]">
+          {generations.length} test{generations.length !== 1 ? 's' : ''}
+        </span>
       </div>
 
       <table className="w-full">
         <thead>
-          <tr className="border-b border-slate-800">
-            {['Test', 'Level', 'Composite', 'Gate', ''].map((h) => (
+          <tr className="border-b border-[#24324A]">
+            {['Test file', 'Level', 'Score', 'Gate', ''].map((h) => (
               <th
                 key={h}
-                className="text-left text-xs font-mono text-slate-400 px-5 py-2.5 font-normal uppercase tracking-wider"
+                className="text-left text-xs font-medium text-[#64748B] px-6 py-3 uppercase tracking-wider"
               >
                 {h}
               </th>
@@ -92,46 +120,46 @@ export default function TestsTable({ generations, evalScores, onExpand }: TestsT
               <tr
                 key={gen.id}
                 className={[
-                  'border-b border-slate-800/50 hover:bg-slate-800/20 transition-colors',
+                  'border-b border-[#24324A]/60 hover:bg-[#151E30] transition-colors',
                   idx === generations.length - 1 ? 'border-b-0' : '',
                 ].join(' ')}
               >
                 {/* Test name */}
-                <td className="px-5 py-3">
+                <td className="px-6 py-3.5">
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-sm font-mono text-slate-200">{filename}</span>
-                    <span className="text-xs font-mono text-slate-500">{gen.id}</span>
+                    <span className="text-sm font-medium text-[#F8FAFC]">{filename}</span>
+                    <span className="text-xs font-mono text-[#64748B]">{gen.id}</span>
                   </div>
                 </td>
 
                 {/* Level */}
-                <td className="px-5 py-3">
+                <td className="px-6 py-3.5">
                   <LevelChip level={gen.level} />
                 </td>
 
-                {/* Composite */}
-                <td className="px-5 py-3">
+                {/* Score */}
+                <td className="px-6 py-3.5">
                   {evalRecord ? (
                     <ScoreBar composite={evalRecord.composite} />
                   ) : (
-                    <span className="text-xs font-mono text-slate-600">—</span>
+                    <span className="text-xs text-[#64748B]">—</span>
                   )}
                 </td>
 
                 {/* Gate */}
-                <td className="px-5 py-3">
+                <td className="px-6 py-3.5">
                   {evalRecord ? (
                     <GateChip gate={evalRecord.gate_decision} />
                   ) : (
-                    <span className="text-xs font-mono text-slate-600">—</span>
+                    <span className="text-xs text-[#64748B]">—</span>
                   )}
                 </td>
 
-                {/* Expand */}
-                <td className="px-5 py-3 text-right">
+                {/* Trace */}
+                <td className="px-6 py-3.5 text-right">
                   <button
                     onClick={() => onExpand?.(gen.id)}
-                    className="text-xs font-mono text-slate-500 border border-slate-700 rounded px-2.5 py-1 hover:text-blue-400 hover:border-blue-500/50 transition-colors"
+                    className="text-xs font-medium text-[#64748B] border border-[#24324A] rounded-lg px-3 py-1.5 hover:text-[#60A5FA] hover:border-[#3B82F6]/40 transition-all duration-150"
                   >
                     Trace →
                   </button>

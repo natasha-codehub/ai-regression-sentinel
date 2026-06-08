@@ -47,24 +47,24 @@ function parsePatch(raw: string): ParsedFile[] {
 const DIFF_STYLES = {
   variables: {
     dark: {
-      diffViewerBackground: '#0f172a',
-      gutterBackground: '#0f172a',
+      diffViewerBackground: '#0f1824',
+      gutterBackground: '#0f1824',
       gutterColor: '#475569',
-      gutterBorderColor: '#1e293b',
-      addedBackground: 'rgba(20,83,45,0.35)',
-      addedGutterBackground: 'rgba(20,83,45,0.55)',
-      removedBackground: 'rgba(127,29,29,0.35)',
-      removedGutterBackground: 'rgba(127,29,29,0.55)',
-      wordAddedBackground: 'rgba(20,83,45,0.75)',
-      wordRemovedBackground: 'rgba(127,29,29,0.75)',
+      gutterBorderColor: '#24324A',
+      addedBackground: 'rgba(34,197,94,0.08)',
+      addedGutterBackground: 'rgba(34,197,94,0.15)',
+      removedBackground: 'rgba(239,68,68,0.08)',
+      removedGutterBackground: 'rgba(239,68,68,0.15)',
+      wordAddedBackground: 'rgba(34,197,94,0.25)',
+      wordRemovedBackground: 'rgba(239,68,68,0.25)',
       addedColor: '#86efac',
       removedColor: '#fca5a5',
-      defaultColor: '#94a3b8',
-      diffViewerTitleBackground: '#1e293b',
-      diffViewerTitleColor: '#64748b',
-      diffViewerTitleBorderColor: '#334155',
-      codeFoldBackground: '#1e293b',
-      codeFoldGutterBackground: '#1e293b',
+      defaultColor: '#94A3B8',
+      diffViewerTitleBackground: '#121827',
+      diffViewerTitleColor: '#64748B',
+      diffViewerTitleBorderColor: '#24324A',
+      codeFoldBackground: '#121827',
+      codeFoldGutterBackground: '#121827',
       codeFoldContentColor: '#475569',
     },
   },
@@ -72,9 +72,9 @@ const DIFF_STYLES = {
 
 function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center h-full gap-3 rounded-lg border border-slate-800 bg-slate-900/40 text-center px-6">
-      <span className="text-slate-500 text-sm">No diff available</span>
-      <code className="text-xs text-slate-600 font-mono bg-slate-800 px-3 py-1.5 rounded">
+    <div className="flex flex-col items-center justify-center h-full gap-3 rounded-xl border border-dashed border-[#24324A] bg-[#121827] text-center px-6">
+      <span className="text-sm text-[#64748B]">No diff available</span>
+      <code className="text-xs text-[#64748B] font-mono bg-[#151E30] border border-[#24324A] px-3 py-1.5 rounded-lg">
         Run scripts/run_steady_state.py to generate this
       </code>
     </div>
@@ -91,20 +91,20 @@ export default function DiffPanel({ diffText }: Props) {
   const files = parsePatch(diffText)
 
   return (
-    <div className="flex flex-col h-full rounded-lg border border-slate-700 border-t-2 border-t-violet-500 bg-zinc-900 overflow-hidden">
-      <div className="px-4 py-2.5 border-b border-slate-700 flex items-center gap-2 shrink-0">
-        <span className="text-sm font-semibold text-slate-200">Diff</span>
-        <span className="text-slate-600 text-xs">·</span>
-        <span className="text-xs text-slate-400">
+    <div className="flex flex-col h-full rounded-xl border border-[#24324A] bg-[#0f1824] overflow-hidden">
+      <div className="px-4 py-3 border-b border-[#24324A] flex items-center gap-2.5 shrink-0 bg-[#121827]">
+        <span className="text-sm font-semibold text-[#F8FAFC]">Diff</span>
+        <span className="text-[#24324A] text-sm">·</span>
+        <span className="text-xs text-[#64748B]">
           {files.length} file{files.length !== 1 ? 's' : ''} changed
         </span>
       </div>
 
       <div className="flex-1 overflow-y-auto overflow-x-auto">
         {files.map((file, i) => (
-          <div key={i} className={i > 0 ? 'mt-1 border-t border-slate-800' : ''}>
-            <div className="px-4 py-1.5 bg-slate-800/50 sticky top-0 z-10">
-              <span className="text-xs font-mono text-amber-300">{file.filename}</span>
+          <div key={i} className={i > 0 ? 'mt-1 border-t border-[#24324A]' : ''}>
+            <div className="px-4 py-1.5 bg-[#151E30] sticky top-0 z-10">
+              <span className="text-xs font-mono text-[#F59E0B]">{file.filename}</span>
             </div>
             <div className="text-xs">
               <ReactDiffViewer

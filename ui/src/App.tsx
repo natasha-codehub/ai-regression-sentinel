@@ -22,7 +22,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-zinc-900 to-slate-950">
+    <div className="flex flex-col h-full bg-[#0B1020]">
       <TopBar activeTab={activeTab} onTabChange={setActiveTab} onReset={handleReset} />
 
       <main className="flex-1 overflow-hidden">
