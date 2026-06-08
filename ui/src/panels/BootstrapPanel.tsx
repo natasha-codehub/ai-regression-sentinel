@@ -2,6 +2,7 @@ import { useBootstrapData } from '../hooks/useBootstrapData'
 import StatRow from '../components/bootstrap/StatRow'
 import PipelineFeed from '../components/bootstrap/PipelineFeed'
 import TestsTable from '../components/bootstrap/TestsTable'
+import SignalSources from '../components/bootstrap/SignalSources'
 
 function LoadingState() {
   return (
@@ -53,6 +54,7 @@ export default function BootstrapPanel({ onNavigateTrace }: Props) {
     <div className="h-full overflow-y-auto">
       <div className="max-w-6xl mx-auto px-6 py-6 space-y-5">
         <RunBanner intentCount={intents.length} generationCount={generations.length} />
+        <SignalSources />
         <StatRow
           intentCount={intents.length}
           observationCount={observations.length}
