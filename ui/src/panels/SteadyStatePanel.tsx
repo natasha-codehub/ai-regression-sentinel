@@ -68,9 +68,9 @@ function AnalyzingState() {
 function IdleState() {
   return (
     <div className="flex flex-col items-center justify-center flex-1 gap-2 select-none">
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-slate-400">
         Click{' '}
-        <span className="font-mono text-blue-400">Run Sentinel</span>
+        <span className="font-mono text-blue-300 font-semibold">Run Sentinel</span>
         {' '}to analyze the PR
       </p>
     </div>
@@ -92,16 +92,16 @@ export default function SteadyStatePanel() {
   return (
     <div className="flex flex-col h-full">
       {/* ── Banner ── */}
-      <div className="shrink-0 flex items-center justify-between px-5 py-3 border-b border-slate-800 bg-slate-900/40">
+      <div className="shrink-0 flex items-center justify-between px-5 py-3 border-b border-slate-700 border-t-2 border-t-violet-500 bg-zinc-900/60">
         <div className="flex items-center gap-3 min-w-0">
           <span className="text-orange-400 text-base shrink-0">⚡</span>
           <div className="min-w-0">
-            <p className="text-[10px] font-mono text-slate-600 uppercase tracking-widest leading-none mb-0.5">
+            <p className="text-xs font-mono text-slate-400 uppercase tracking-widest leading-none mb-0.5">
               Triggered by
             </p>
-            <p className="text-sm text-slate-200 font-medium truncate">
+            <p className="text-base text-slate-100 font-semibold truncate">
               PR #2387&nbsp;
-              <span className="text-slate-400 font-normal italic">
+              <span className="text-slate-300 font-normal italic">
                 "Fix tax calculation for free shipping in CA"
               </span>
             </p>

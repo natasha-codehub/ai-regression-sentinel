@@ -9,7 +9,7 @@ interface Props {
 
 export default function TopBar({ activeTab, onTabChange, onReset }: Props) {
   return (
-    <header className="flex items-stretch h-12 border-b border-slate-800 shrink-0 px-5">
+    <header className="flex items-stretch h-12 border-b border-slate-700 shrink-0 px-5">
       {/* Wordmark */}
       <div className="flex items-center w-48 shrink-0">
         <span className="font-mono font-semibold text-sm tracking-widest text-slate-100 select-none">
@@ -30,10 +30,10 @@ export default function TopBar({ activeTab, onTabChange, onReset }: Props) {
                 'border-b-2',
                 isActive
                   ? 'text-slate-100 border-blue-500'
-                  : 'text-slate-400 border-transparent hover:text-slate-200',
+                  : 'text-slate-300 border-transparent hover:text-slate-100',
               ].join(' ')}
             >
-              <span className="text-xs font-mono text-slate-600 select-none">
+              <span className="text-xs font-mono text-slate-500 select-none">
                 {tab.chapter}
               </span>
               {tab.label}

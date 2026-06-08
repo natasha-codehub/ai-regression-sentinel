@@ -6,15 +6,15 @@ import type { Intent, Reconciliation, Generation, RecDecision } from '../../type
 const DECISION_STYLES: Record<RecDecision, { label: string; cls: string }> = {
   agree: {
     label: 'agree',
-    cls: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/25',
+    cls: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50',
   },
   behavior_regressed: {
     label: 'regression',
-    cls: 'bg-rose-500/10 text-rose-400 border border-rose-500/25',
+    cls: 'bg-rose-500/20 text-rose-300 border border-rose-500/50',
   },
   no_observation: {
     label: 'no obs',
-    cls: 'bg-amber-500/10 text-amber-400 border border-amber-500/25',
+    cls: 'bg-amber-500/20 text-amber-300 border border-amber-500/50',
   },
 }
 
@@ -73,6 +73,12 @@ function AnimatedItem({ index, visible, children }: AnimatedItemProps) {
 
 // ── Column header ─────────────────────────────────────────────────────────────
 
+const STEP_ACCENT: Record<string, string> = {
+  '01': 'text-blue-400',
+  '02': 'text-purple-400',
+  '03': 'text-emerald-400',
+}
+
 function ColumnHeader({
   step,
   title,
@@ -84,20 +90,21 @@ function ColumnHeader({
   subtitle: string
   count: number
 }) {
+  const accentColor = STEP_ACCENT[step] ?? 'text-slate-400'
   return (
-    <div className="mb-3 pb-3 border-b border-slate-800">
-      <div className="flex items-center justify-between mb-0.5">
+    <div className="mb-3 pb-3 border-b border-slate-700">
+      <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono font-bold text-blue-500/60">{step}</span>
-          <span className="text-xs font-mono font-semibold text-slate-200 uppercase tracking-widest">
+          <span className={`text-xs font-mono font-bold ${accentColor}`}>{step}</span>
+          <span className="text-sm font-semibold text-slate-200">
             {title}
           </span>
         </div>
-        <span className="text-xs font-mono text-slate-600 bg-slate-800/60 rounded px-1.5 py-0.5">
+        <span className="text-xs font-mono text-slate-400 bg-slate-800 rounded px-1.5 py-0.5">
           {count}
         </span>
       </div>
-      <p className="text-xs font-mono text-slate-600 pl-6">{subtitle}</p>
+      <p className="text-xs text-slate-400 pl-6">{subtitle}</p>
     </div>
   )
 }
@@ -108,7 +115,7 @@ function FlowArrow() {
   return (
     <div className="flex items-center justify-center w-6 shrink-0 pt-8">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M3 8h10M9 4l4 4-4 4" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M3 8h10M9 4l4 4-4 4" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     </div>
   )
@@ -119,14 +126,14 @@ function FlowArrow() {
 function IngestionCard({ intent, index, visible }: { intent: Intent; index: number; visible: boolean }) {
   return (
     <AnimatedItem index={index} visible={visible}>
-      <div className="border border-slate-800 rounded-md p-2.5 space-y-1 hover:border-slate-700 transition-colors">
+      <div className="border border-slate-700 rounded-md p-2.5 space-y-1 hover:border-slate-600 transition-colors">
         <div className="flex items-center gap-1.5">
-          <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 shrink-0">
+          <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-slate-700 text-slate-200 shrink-0">
             {cap(intent.feature_area)}
           </span>
-          <span className="text-xs font-mono text-slate-600 truncate">{intent.id}</span>
+          <span className="text-xs font-mono text-slate-500 truncate">{intent.id}</span>
         </div>
-        <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
+        <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">
           {intent.action_description}
         </p>
       </div>
@@ -140,15 +147,15 @@ function ReconciliationCard({ rec, index, visible }: { rec: Reconciliation; inde
   const style = DECISION_STYLES[rec.decision]
   return (
     <AnimatedItem index={index} visible={visible}>
-      <div className="border border-slate-800 rounded-md p-2.5 space-y-1.5 hover:border-slate-700 transition-colors">
+      <div className="border border-slate-700 rounded-md p-2.5 space-y-1.5 hover:border-slate-600 transition-colors">
         <div className="flex items-center gap-2">
           <span className={`text-xs font-mono px-1.5 py-0.5 rounded shrink-0 ${style.cls}`}>
             {style.label}
           </span>
-          <span className="text-xs font-mono text-slate-500">{Math.round(rec.confidence * 100)}% conf</span>
-          <span className="text-xs font-mono text-slate-600 ml-auto">{rec.intent_id}</span>
+          <span className="text-xs font-mono text-slate-400">{Math.round(rec.confidence * 100)}% conf</span>
+          <span className="text-xs font-mono text-slate-500 ml-auto">{rec.intent_id}</span>
         </div>
-        <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">{rec.reasoning}</p>
+        <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">{rec.reasoning}</p>
       </div>
     </AnimatedItem>
   )
@@ -159,14 +166,14 @@ function ReconciliationCard({ rec, index, visible }: { rec: Reconciliation; inde
 function GenerationCard({ gen, index, visible }: { gen: Generation; index: number; visible: boolean }) {
   return (
     <AnimatedItem index={index} visible={visible}>
-      <div className="border border-slate-800 rounded-md p-2.5 space-y-1 hover:border-slate-700 transition-colors">
-        <p className="text-xs font-mono text-slate-200 truncate">{getTestFilename(gen)}</p>
+      <div className="border border-slate-700 rounded-md p-2.5 space-y-1 hover:border-slate-600 transition-colors">
+        <p className="text-sm font-mono text-slate-200 truncate">{getTestFilename(gen)}</p>
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs font-mono text-slate-500">
+          <span className="text-xs font-mono text-slate-400">
             {ASSERTION_COUNTS[gen.id] ?? '—'} assertions
           </span>
-          <span className="text-xs font-mono text-slate-700">·</span>
-          <span className="text-xs font-mono text-slate-600 truncate">{getEndpoint(gen)}</span>
+          <span className="text-xs font-mono text-slate-600">·</span>
+          <span className="text-xs font-mono text-slate-500 truncate">{getEndpoint(gen)}</span>
         </div>
       </div>
     </AnimatedItem>
@@ -193,14 +200,14 @@ export default function PipelineFeed({ intents, reconciliations, generations }: 
   const linkedRecs = reconciliations.filter((r) => genIntentIds.has(r.intent_id))
 
   return (
-    <div className="border border-slate-800 rounded-lg overflow-hidden">
+    <div className="border border-slate-700 border-t-2 border-t-blue-500 rounded-lg overflow-hidden">
       {/* Section header */}
-      <div className="px-5 py-3 border-b border-slate-800 flex items-center justify-between">
+      <div className="px-5 py-3 border-b border-slate-700 flex items-center justify-between">
         <div>
-          <h2 className="text-xs font-mono text-slate-400 uppercase tracking-widest font-semibold">
+          <h2 className="text-base font-semibold text-slate-200">
             Pipeline Run
           </h2>
-          <p className="text-xs font-mono text-slate-600 mt-0.5">
+          <p className="text-sm text-slate-400 mt-0.5">
             XLSX intents → behavior reconciliation → test generation
           </p>
         </div>
@@ -212,7 +219,7 @@ export default function PipelineFeed({ intents, reconciliations, generations }: 
       {/* Three-column pipeline */}
       <div className="p-5 flex gap-0 items-stretch" style={{ minHeight: 0 }}>
         {/* Column 1 — Ingestion */}
-        <div className="flex-1 min-w-0 flex flex-col" style={{ height: '300px' }}>
+        <div className="flex-1 min-w-0 flex flex-col border-l-2 border-l-blue-500/60 pl-3" style={{ height: '300px' }}>
           <ColumnHeader
             step="01"
             title="Ingest"
@@ -229,7 +236,7 @@ export default function PipelineFeed({ intents, reconciliations, generations }: 
         <FlowArrow />
 
         {/* Column 2 — Reconciliation */}
-        <div className="flex-1 min-w-0 flex flex-col" style={{ height: '300px' }}>
+        <div className="flex-1 min-w-0 flex flex-col border-l-2 border-l-purple-500/60 pl-3" style={{ height: '300px' }}>
           <ColumnHeader
             step="02"
             title="Reconcile"
@@ -249,7 +256,7 @@ export default function PipelineFeed({ intents, reconciliations, generations }: 
         <FlowArrow />
 
         {/* Column 3 — Generation */}
-        <div className="flex-1 min-w-0 flex flex-col" style={{ height: '300px' }}>
+        <div className="flex-1 min-w-0 flex flex-col border-l-2 border-l-emerald-500/60 pl-3" style={{ height: '300px' }}>
           <ColumnHeader
             step="03"
             title="Generate"

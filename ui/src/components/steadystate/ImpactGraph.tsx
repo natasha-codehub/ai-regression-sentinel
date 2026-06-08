@@ -163,17 +163,17 @@ export default function ImpactGraph({ impact }: Props) {
   )
 
   return (
-    <div className="flex flex-col h-full rounded-lg border border-slate-800 bg-slate-900 overflow-hidden">
+    <div className="flex flex-col h-full rounded-lg border border-slate-700 border-t-2 border-t-violet-500 bg-zinc-900 overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-2.5 border-b border-slate-800 flex items-center justify-between shrink-0">
+      <div className="px-4 py-2.5 border-b border-slate-700 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono text-slate-400 tracking-wider uppercase">
+          <span className="text-sm font-semibold text-slate-200">
             Impact Graph
           </span>
           {impact && (
             <>
-              <span className="text-slate-700 text-xs">·</span>
-              <span className="text-xs text-slate-500">
+              <span className="text-slate-600 text-xs">·</span>
+              <span className="text-xs text-slate-400">
                 {impact.changed_symbols.length} symbol
                 {impact.changed_symbols.length !== 1 ? 's' : ''} →{' '}
                 {impact.affected_tests.length} test
@@ -186,11 +186,11 @@ export default function ImpactGraph({ impact }: Props) {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-full bg-orange-500/20 border border-orange-400/70" />
-            <span className="text-[10px] text-slate-500">Code</span>
+            <span className="text-xs text-slate-400">Code</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-3.5 h-2.5 rounded-sm bg-blue-600/20 border border-blue-400/70" />
-            <span className="text-[10px] text-slate-500">Test</span>
+            <span className="text-xs text-slate-400">Test</span>
           </div>
         </div>
       </div>

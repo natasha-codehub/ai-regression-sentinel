@@ -7,12 +7,12 @@ const MD_COMPONENTS: Components = {
     <h2 className="text-slate-200 text-sm font-semibold mt-4 mb-1.5 first:mt-0">{children}</h2>
   ),
   h3: ({ children }) => (
-    <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-3 mb-1">
+    <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider mt-3 mb-1">
       {children}
     </h3>
   ),
   p: ({ children }) => (
-    <p className="text-xs text-slate-400 leading-relaxed mb-2">{children}</p>
+    <p className="text-xs text-slate-300 leading-relaxed mb-2">{children}</p>
   ),
   ul: ({ children }) => (
     <ul className="list-disc list-outside ml-4 space-y-1 mb-2">{children}</ul>
@@ -20,7 +20,7 @@ const MD_COMPONENTS: Components = {
   ol: ({ children }) => (
     <ol className="list-decimal list-outside ml-4 space-y-1 mb-2">{children}</ol>
   ),
-  li: ({ children }) => <li className="text-xs text-slate-400 leading-relaxed">{children}</li>,
+  li: ({ children }) => <li className="text-xs text-slate-300 leading-relaxed">{children}</li>,
   strong: ({ children }) => (
     <strong className="text-slate-200 font-semibold">{children}</strong>
   ),
@@ -60,9 +60,9 @@ export default function PRCommentPanel({ markdown }: Props) {
   }
 
   return (
-    <div className="flex flex-col h-full rounded-lg border border-slate-800 bg-slate-900 overflow-hidden">
-      <div className="px-4 py-2.5 border-b border-slate-800 flex items-center justify-between shrink-0">
-        <span className="text-xs font-mono text-slate-400 tracking-wider uppercase">
+    <div className="flex flex-col h-full rounded-lg border border-slate-700 border-t-2 border-t-violet-500 bg-zinc-900 overflow-hidden">
+      <div className="px-4 py-2.5 border-b border-slate-700 flex items-center justify-between shrink-0">
+        <span className="text-sm font-semibold text-slate-200">
           Generated PR Comment
         </span>
         <button

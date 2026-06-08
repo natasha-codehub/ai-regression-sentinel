@@ -91,11 +91,11 @@ export default function DiffPanel({ diffText }: Props) {
   const files = parsePatch(diffText)
 
   return (
-    <div className="flex flex-col h-full rounded-lg border border-slate-800 bg-slate-900 overflow-hidden">
-      <div className="px-4 py-2.5 border-b border-slate-800 flex items-center gap-2 shrink-0">
-        <span className="text-xs font-mono text-slate-400 tracking-wider uppercase">Diff</span>
-        <span className="text-slate-700 text-xs">·</span>
-        <span className="text-xs text-slate-500">
+    <div className="flex flex-col h-full rounded-lg border border-slate-700 border-t-2 border-t-violet-500 bg-zinc-900 overflow-hidden">
+      <div className="px-4 py-2.5 border-b border-slate-700 flex items-center gap-2 shrink-0">
+        <span className="text-sm font-semibold text-slate-200">Diff</span>
+        <span className="text-slate-600 text-xs">·</span>
+        <span className="text-xs text-slate-400">
           {files.length} file{files.length !== 1 ? 's' : ''} changed
         </span>
       </div>
@@ -104,7 +104,7 @@ export default function DiffPanel({ diffText }: Props) {
         {files.map((file, i) => (
           <div key={i} className={i > 0 ? 'mt-1 border-t border-slate-800' : ''}>
             <div className="px-4 py-1.5 bg-slate-800/50 sticky top-0 z-10">
-              <span className="text-xs font-mono text-amber-400/80">{file.filename}</span>
+              <span className="text-xs font-mono text-amber-300">{file.filename}</span>
             </div>
             <div className="text-xs">
               <ReactDiffViewer

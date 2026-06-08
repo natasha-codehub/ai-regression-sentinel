@@ -7,7 +7,7 @@ import SignalSources from '../components/bootstrap/SignalSources'
 function LoadingState() {
   return (
     <div className="flex items-center justify-center h-full">
-      <span className="text-xs font-mono text-slate-600 tracking-widest animate-pulse">
+      <span className="text-sm font-mono text-slate-400 tracking-widest animate-pulse">
         Loading pipeline data…
       </span>
     </div>
@@ -22,13 +22,13 @@ function RunBanner({
   generationCount: number
 }) {
   return (
-    <div className="border border-slate-800 rounded-lg px-5 py-4 flex items-center justify-between bg-slate-900/40">
-      <div className="space-y-0.5">
-        <p className="text-sm font-mono text-slate-200 font-medium">Bootstrap run complete</p>
-        <p className="text-xs font-mono text-slate-500">
-          Sentinel ingested <span className="text-slate-300">{intentCount} test intents</span> from
+    <div className="border border-slate-700 border-t-2 border-t-blue-500 rounded-lg px-5 py-4 flex items-center justify-between bg-zinc-900/60">
+      <div className="space-y-1">
+        <p className="text-base font-semibold text-slate-100">Bootstrap run complete</p>
+        <p className="text-sm text-slate-400">
+          Sentinel ingested <span className="text-slate-200 font-medium">{intentCount} test intents</span> from
           the XLSX spec, matched them against observed API behavior, and generated{' '}
-          <span className="text-slate-300">{generationCount} PHP test files</span> — each evaluated
+          <span className="text-slate-200 font-medium">{generationCount} PHP test files</span> — each evaluated
           and gate-scored before landing in your test suite.
         </p>
       </div>

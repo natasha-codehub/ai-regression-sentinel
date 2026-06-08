@@ -10,10 +10,10 @@ function StatCard({ label, value, hint }: StatCardProps) {
   const displayed = useCountUp(value)
 
   return (
-    <div className="border border-slate-800 rounded-lg p-5 space-y-1">
-      <p className="text-xs font-mono text-slate-500 uppercase tracking-widest">{label}</p>
-      <p className="text-4xl font-mono font-semibold text-slate-100 tabular-nums">{displayed}</p>
-      <p className="text-xs font-mono text-slate-600">{hint}</p>
+    <div className="border border-slate-700 border-t-2 border-t-blue-500 rounded-lg p-5 space-y-1 bg-zinc-900/40">
+      <p className="text-sm font-mono text-slate-300 uppercase tracking-widest">{label}</p>
+      <p className="text-4xl font-mono font-bold text-blue-200 tabular-nums">{displayed}</p>
+      <p className="text-sm text-slate-400">{hint}</p>
     </div>
   )
 }

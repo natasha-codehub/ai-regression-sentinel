@@ -3,10 +3,10 @@ import type { Generation, EvalScore, GateDecision } from '../../types'
 // ── Gate chip ─────────────────────────────────────────────────────────────────
 
 const GATE_STYLES: Record<GateDecision, string> = {
-  PASS: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/25',
-  WARN: 'bg-amber-500/10 text-amber-400 border border-amber-500/25',
-  REVIEW: 'bg-orange-500/10 text-orange-400 border border-orange-500/25',
-  FAIL: 'bg-rose-500/10 text-rose-400 border border-rose-500/25',
+  PASS: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50',
+  WARN: 'bg-amber-500/20 text-amber-300 border border-amber-500/50',
+  REVIEW: 'bg-orange-500/20 text-orange-300 border border-orange-500/50',
+  FAIL: 'bg-rose-500/20 text-rose-300 border border-rose-500/50',
 }
 
 function GateChip({ gate }: { gate: GateDecision }) {
@@ -37,7 +37,7 @@ function ScoreBar({ composite }: { composite: number }) {
       <div className="w-20 h-1 bg-slate-800 rounded-full overflow-hidden">
         <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-xs font-mono text-slate-400 tabular-nums w-8">{pct.toFixed(1)}</span>
+      <span className="text-xs font-mono text-slate-300 tabular-nums w-8">{pct.toFixed(1)}</span>
     </div>
   )
 }
@@ -62,12 +62,12 @@ export default function TestsTable({ generations, evalScores, onExpand }: TestsT
   }
 
   return (
-    <div className="border border-slate-800 rounded-lg overflow-hidden">
-      <div className="px-5 py-3 border-b border-slate-800 flex items-center justify-between">
-        <h2 className="text-xs font-mono text-slate-500 uppercase tracking-widest">
+    <div className="border border-slate-700 border-t-2 border-t-blue-500 rounded-lg overflow-hidden">
+      <div className="px-5 py-3 border-b border-slate-700 flex items-center justify-between">
+        <h2 className="text-base font-semibold text-slate-200">
           Generated Tests
         </h2>
-        <span className="text-xs font-mono text-slate-600">{generations.length} tests</span>
+        <span className="text-sm text-slate-400">{generations.length} tests</span>
       </div>
 
       <table className="w-full">
@@ -76,7 +76,7 @@ export default function TestsTable({ generations, evalScores, onExpand }: TestsT
             {['Test', 'Level', 'Composite', 'Gate', ''].map((h) => (
               <th
                 key={h}
-                className="text-left text-xs font-mono text-slate-500 px-5 py-2.5 font-normal uppercase tracking-wider"
+                className="text-left text-xs font-mono text-slate-400 px-5 py-2.5 font-normal uppercase tracking-wider"
               >
                 {h}
               </th>
@@ -100,7 +100,7 @@ export default function TestsTable({ generations, evalScores, onExpand }: TestsT
                 <td className="px-5 py-3">
                   <div className="flex flex-col gap-0.5">
                     <span className="text-sm font-mono text-slate-200">{filename}</span>
-                    <span className="text-xs font-mono text-slate-600">{gen.id}</span>
+                    <span className="text-xs font-mono text-slate-500">{gen.id}</span>
                   </div>
                 </td>
 
