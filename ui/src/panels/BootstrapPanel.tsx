@@ -75,7 +75,7 @@ export default function BootstrapPanel({ onNavigateTrace }: Props) {
           intents={intents}
           reconciliations={reconciliations}
           generations={generations}
-          evalCount={evalScores.length}
+          evalCount={displayStats.generationCount}
           displayIntentCount={displayStats.intentCount}
           displayGenerationCount={displayStats.generationCount}
         />
@@ -84,6 +84,7 @@ export default function BootstrapPanel({ onNavigateTrace }: Props) {
         <TestsTable
           generations={generations}
           evalScores={evalScores}
+          displayCount={displayStats.generationCount}
           onExpand={onNavigateTrace}
         />
 

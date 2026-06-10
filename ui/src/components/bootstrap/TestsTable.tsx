@@ -66,10 +66,11 @@ function ScoreBar({ composite }: { composite: number }) {
 interface TestsTableProps {
   generations: Generation[]
   evalScores: EvalScore[]
+  displayCount?: number
   onExpand?: (genId: string) => void
 }
 
-export default function TestsTable({ generations, evalScores, onExpand }: TestsTableProps) {
+export default function TestsTable({ generations, evalScores, displayCount, onExpand }: TestsTableProps) {
   const evalMap = new Map(evalScores.map((e) => [e.generation_id, e]))
 
   if (generations.length === 0) {
@@ -94,7 +95,7 @@ export default function TestsTable({ generations, evalScores, onExpand }: TestsT
           </div>
         </div>
         <span className="text-sm font-medium text-[#94A3B8]">
-          {generations.length} test{generations.length !== 1 ? 's' : ''}
+          {(displayCount ?? generations.length).toLocaleString()} test{(displayCount ?? generations.length) !== 1 ? 's' : ''}
         </span>
       </div>
 
