@@ -52,7 +52,7 @@ interface Props {
 }
 
 export default function BootstrapPanel({ onNavigateTrace }: Props) {
-  const { intents, reconciliations, generations, evalScores, observations, loading } =
+  const { intents, reconciliations, generations, evalScores, displayStats, loading } =
     useBootstrapData()
 
   if (loading) return <LoadingState />
@@ -61,13 +61,13 @@ export default function BootstrapPanel({ onNavigateTrace }: Props) {
     <div className="h-full overflow-y-auto">
       <div className="max-w-6xl mx-auto px-6 py-7 space-y-6">
         {/* 1. Status banner */}
-        <RunBanner intentCount={intents.length} generationCount={generations.length} />
+        <RunBanner intentCount={displayStats.intentCount} generationCount={displayStats.generationCount} />
 
         {/* 2. KPI metrics */}
         <StatRow
-          intentCount={intents.length}
-          observationCount={observations.length}
-          generationCount={generations.length}
+          intentCount={displayStats.intentCount}
+          observationCount={displayStats.observationCount}
+          generationCount={displayStats.generationCount}
         />
 
         {/* 3. Pipeline visualization */}
@@ -76,6 +76,8 @@ export default function BootstrapPanel({ onNavigateTrace }: Props) {
           reconciliations={reconciliations}
           generations={generations}
           evalCount={evalScores.length}
+          displayIntentCount={displayStats.intentCount}
+          displayGenerationCount={displayStats.generationCount}
         />
 
         {/* 4. Generated tests */}

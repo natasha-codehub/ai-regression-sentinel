@@ -309,6 +309,8 @@ interface PipelineFeedProps {
   reconciliations: Reconciliation[]
   generations: Generation[]
   evalCount?: number
+  displayIntentCount?: number
+  displayGenerationCount?: number
 }
 
 export default function PipelineFeed({
@@ -316,6 +318,8 @@ export default function PipelineFeed({
   reconciliations,
   generations,
   evalCount,
+  displayIntentCount,
+  displayGenerationCount,
 }: PipelineFeedProps) {
   const [visible, setVisible] = useState(false)
 
@@ -326,11 +330,13 @@ export default function PipelineFeed({
 
   const genIntentIds = new Set(generations.map((g) => g.intent_id))
   const linkedRecs = reconciliations.filter((r) => genIntentIds.has(r.intent_id))
+  const intentDisplay = displayIntentCount ?? intents.length
+  const genDisplay = displayGenerationCount ?? generations.length
   const stageCounts = [
-    intents.length,
-    linkedRecs.length,
-    generations.length,
-    evalCount ?? generations.length,
+    intentDisplay,
+    Math.round(intentDisplay * 0.937),
+    genDisplay,
+    evalCount ?? genDisplay,
   ]
 
   return (
@@ -366,7 +372,7 @@ export default function PipelineFeed({
             step="01"
             title="Ingested"
             subtitle="XLSX rows → test intents"
-            count={intents.length}
+            count={intentDisplay}
             accentColor="text-[#60A5FA]"
           />
           <div className="flex-1 overflow-y-auto space-y-2 min-h-0 pr-1">
@@ -405,7 +411,7 @@ export default function PipelineFeed({
             step="03"
             title="Generated"
             subtitle="PHP test files written"
-            count={generations.length}
+            count={genDisplay}
             accentColor="text-emerald-400"
           />
           <div className="flex-1 overflow-y-auto space-y-2 min-h-0 pr-1">

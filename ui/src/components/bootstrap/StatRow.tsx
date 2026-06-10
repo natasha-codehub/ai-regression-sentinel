@@ -57,7 +57,7 @@ function StatCard({
           <Icon className={iconColor} size={17} />
         </div>
         <span className="text-xs font-medium text-[#22C55E] bg-[#22C55E]/10 border border-[#22C55E]/20 rounded-full px-2.5 py-1">
-          +{value} this run
+          this run
         </span>
       </div>
       <div>
