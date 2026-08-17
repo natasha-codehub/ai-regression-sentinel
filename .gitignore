@@ -10,3 +10,6 @@ ui/dist/
 ui/.next/
 *.egg-info/
 .DS_Store
+
+# Office lock/temp files
+~$*
